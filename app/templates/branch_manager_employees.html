@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Branch Manager - Employees</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root{--primary:#0b3a6d;--bg:#f4f6f9}
+    body{font-family:'Poppins',sans-serif;background:var(--bg)}
+    .sidebar{position:fixed;left:0;top:0;width:240px;height:100%;background:var(--primary);color:#fff;padding-top:20px}
+    .sidebar a{display:block;padding:12px 18px;color:#fff;text-decoration:none;font-weight:600;border-left:4px solid transparent}
+    .sidebar a:hover{background:#0f4a86;border-left-color:#ffc107}
+    .main{margin-left:240px;padding:22px}
+    .header{background:#fff;padding:14px 18px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+    .table-wrap{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:14px}
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <h4 class="text-center mb-4" style="color:#fff;">Branch Manager</h4>
+    <a href="branch_manager_dashboard.html">Dashboard</a>
+    <a href="branch_manager_employees.html" style="background:#0f4a86;border-left-color:#ffc107;">Employees</a>
+    <a href="branch_manager_accounts.html">Accounts</a>
+    <a href="branch_manager_transactions.html">Transactions</a>
+    <a href="branch_manager_transfer.html">Transfer</a>
+    <a href="branch_manager_loans.html">Loans</a>
+    <a href="branch_manager_customers.html">Customers</a>
+    <a href="Login.html">Logout</a>
+  </div>
+
+  <div class="main">
+
+    <div class="header">
+      <div>
+        <h3 class="mb-0">Employee Management</h3>
+        <div class="text-muted small">Branch-scoped add/update/delete</div>
+      </div>
+      <button class="btn btn-sm btn-outline-primary" id="refreshBtn">Refresh</button>
+    </div>
+
+    <div id="alertBox" class="alert alert-danger" style="display:none"></div>
+
+    <div class="table-wrap mb-3">
+      <h5 class="mb-3">Add Employee</h5>
+
+      <form id="addEmployeeForm" class="row g-3">
+        <div class="col-md-3"><label class="form-label">First Name</label><input class="form-control" name="first_name" required></div>
+        <div class="col-md-3"><label class="form-label">Last Name</label><input class="form-control" name="last_name" required></div>
+        <div class="col-md-4"><label class="form-label">Email</label><input class="form-control" name="email" type="email" required></div>
+        <div class="col-md-2"><label class="form-label">Phone</label><input class="form-control" name="phone" required></div>
+        <div class="col-md-3"><label class="form-label">Department</label><input class="form-control" name="department" value="Employee" required></div>
+        <div class="col-md-3"><label class="form-label">Salary</label><input class="form-control" name="salary" type="number" step="0.01" required></div>
+        <div class="col-md-3"><label class="form-label">Branch ID</label><input class="form-control" name="branch_id" id="branchIdInput" required></div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button class="btn btn-primary w-100" type="submit">Add</button>
+        </div>
+      </form>
+
+    </div>
+
+    <div class="table-wrap">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Employees</h5>
+
+        <div class="input-group input-group-sm" style="max-width:320px;">
+          <input id="searchInput" type="text" class="form-control" placeholder="Search name/email">
+          <button class="btn btn-outline-primary" id="searchBtn" type="button">Search</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Department</th>
+              <th>Branch</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="employeesBody">
+            <tr><td colspan="6" class="text-center text-muted py-3">Loading...</td></tr>
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  const API_BASE = "http://localhost:8000";
+  const token = sessionStorage.getItem('access_token');
+
+  function showError(msg){
+    const el = document.getElementById('alertBox');
+    el.style.display = 'block';
+    el.textContent = msg;
+  }
+
+  function clearError(){
+    const el = document.getElementById('alertBox');
+    el.style.display = 'none';
+  }
+
+  async function apiGet(path){
+    if(!token) throw new Error('Missing access token');
+
+    const res = await fetch(`${API_BASE}${path}`,{
+      headers:{'Authorization':`Bearer ${token}`}
+    });
+
+    const text = await res.text();
+    let data; try{data=JSON.parse(text)}catch{data={message:text}}
+
+    if(!res.ok) throw new Error(data.detail || data.message || 'Request failed');
+    return data;
+  }
+
+  async function apiPostForm(path, form){
+    if(!token) throw new Error('Missing access token');
+
+    const res = await fetch(`${API_BASE}${path}`,{
+      method:'POST',
+      body:form,
+      headers:{'Authorization':`Bearer ${token}`}
+    });
+
+    const text = await res.text();
+    let data; try{data=JSON.parse(text)}catch{data={message:text}}
+
+    if(!res.ok) throw new Error(data.detail || data.message || 'Request failed');
+    return data;
+  }
+
+  async function loadMe(){
+    const me = await apiGet('/api/auth/me');
+    document.getElementById('branchIdInput').value = me.branch_id;
+  }
+
+  async function loadEmployees(){
+    clearError();
+
+    const tbody = document.getElementById('employeesBody');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Loading...</td></tr>';
+
+    const q = document.getElementById('searchInput').value.trim();
+
+    // ✅ FIXED API ROUTE
+    const data = await apiGet(`/employee-manager/employees?search=${encodeURIComponent(q)}`);
+
+    const employees = data.employees || [];
+
+    tbody.innerHTML = employees.map(e => `
+      <tr>
+        <td>${e.employee_id}</td>
+        <td>${e.first_name ?? ''} ${e.last_name ?? ''}</td>
+        <td>${e.email ?? ''}</td>
+        <td>${e.department ?? ''}</td>
+        <td>${e.branch_id ?? ''}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteEmployee('${e.employee_id}')">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  async function deleteEmployee(id){
+    if(!confirm('Delete employee ID ' + id + '?')) return;
+
+    clearError();
+
+    // ✅ FIXED API ROUTE
+    const res = await fetch(`${API_BASE}/employee-manager/employees/${id}`,{
+      method:'DELETE',
+      headers:{'Authorization':`Bearer ${token}`}
+    });
+
+    const text = await res.text();
+    let data; try{data=JSON.parse(text)}catch{data={message:text}}
+
+    if(!res.ok) return showError(data.detail || data.message || 'Delete failed');
+
+    await loadEmployees();
+  }
+
+  document.getElementById('searchBtn').addEventListener('click', loadEmployees);
+  document.getElementById('refreshBtn').addEventListener('click', loadEmployees);
+
+  document.getElementById('addEmployeeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
+
+    const form = new FormData(e.target);
+
+    try{
+      await apiPostForm('/employee-manager/employees', form);
+      e.target.reset();
+      await loadMe();
+      await loadEmployees();
+    }catch(err){
+      showError(err.message);
+    }
+  });
+
+  (async ()=>{
+    try{
+      await loadMe();
+      await loadEmployees();
+    }catch(e){
+      showError(e.message);
+    }
+  })();
+
+</script>
+
+</body>
+</html>

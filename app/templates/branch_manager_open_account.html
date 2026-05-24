@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Manager Open Account Requests</title>
+
+<style>
+body{
+    font-family:Poppins;
+    background:#eef3ff;
+    margin:0;
+    display:flex;
+}
+
+.sidebar{
+    width:240px;
+    background:#002b7f;
+    height:100vh;
+    color:white;
+    padding:20px;
+}
+
+.main{
+    margin-left:240px;
+    padding:20px;
+    width:100%;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:15px;
+}
+
+button{
+    padding:10px 14px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.forward{background:#0057ff;color:white;}
+.reject{background:red;color:white;}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h2>Manager Panel</h2>
+    <p>Open Account Requests</p>
+</div>
+
+<div class="main">
+
+<h2>Manager Requests</h2>
+
+<div id="container"></div>
+
+</div>
+
+<script>
+
+const managerId = localStorage.getItem("managerId") || 1;
+
+async function loadRequests(){
+
+    const res = await fetch(
+        `/manager/open-account/pending/${managerId}`
+    );
+
+    const data = await res.json();
+
+    let html = "";
+
+    data.forEach(r=>{
+
+        html += `
+        <div class="card">
+
+            <h3>${r.full_name}</h3>
+            <p>${r.mobile}</p>
+            <p>${r.email}</p>
+            <p>Branch: ${r.branch_name}</p>
+
+            <button class="forward"
+            onclick="forward(${r.id})">
+                Forward to Admin
+            </button>
+
+            <button class="reject"
+            onclick="reject(${r.id})">
+                Reject
+            </button>
+
+        </div>
+        `;
+    });
+
+    document.getElementById("container").innerHTML = html;
+}
+
+
+/* FORWARD */
+async function forward(id){
+
+    const remark = prompt("Enter remark:");
+
+    await fetch(
+        `/manager/open-account/forward/${id}?remark=${remark}`,
+        {method:"PUT"}
+    );
+
+    alert("Forwarded to Admin");
+
+    loadRequests();
+}
+
+
+/* REJECT */
+async function reject(id){
+
+    const remark = prompt("Enter remark:");
+
+    await fetch(
+        `/manager/open-account/reject/${id}?remark=${remark}`,
+        {method:"PUT"}
+    );
+
+    alert("Rejected");
+
+    loadRequests();
+}
+
+loadRequests();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Account - Admin</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Poppins'; padding-top: 70px; background: #f8f9fa; }
+    .top-navbar-red { background: #C62828; height: 60px; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; width: 100%; z-index: 1000; }
+    .card-section { background: #fff; padding: 18px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.05); }
+    .btn-sbi { background: #C62828; color: #fff; padding: 10px 16px; border: none; border-radius: 8px; font-weight: 700; }
+    .table th { background: #f2f4f7; }
+    .muted-small { color: #6c757d; font-size: 12px; }
+    .form-control, .form-select { border-radius: 10px; }
+    .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-3 { grid-column: span 3; }
+    .col-12 { grid-column: span 12; }
+
+    @media (max-width: 992px){
+      .col-6,.col-4,.col-3{ grid-column: span 12; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-navbar-red">
+    <h5 class="m-0">Manage Account</h5>
+    <a href="Login.html" class="btn btn-light btn-sm">Logout</a>
+  </div>
+
+  <div class="container mt-4">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h3 class="m-0">Admin - Manage Accounts</h3>
+      <div class="muted-small" id="apiStatus">API: idle</div>
+    </div>
+
+    <ul class="nav nav-tabs mt-3">
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabOpen">Open Account</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabView">View/Search/Edit</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabMoney">Deposit/Withdraw/Transfer</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabFreezeClose">Freeze/Close</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabHistory">Transaction History</button></li>
+    </ul>
+
+    <div class="tab-content mt-3">
+      <!-- OPEN ACCOUNT -->
+      <div class="tab-pane fade show active" id="tabOpen">
+        <div class="card-section">
+          <div class="mb-2">
+            <div class="fw-bold">Open Account</div>
+            <div class="muted-small">Account number auto-generate. Branch dropdown loads from existing <code>branches</code>.</div>
+          </div>
+
+          <form id="openAccountForm">
+            <div class="form-grid">
+              <div class="col-6"><input class="form-control" name="customer_name" placeholder="customer_name" required></div>
+              <div class="col-6"><input class="form-control" name="email" placeholder="email" required></div>
+
+              <div class="col-6"><input class="form-control" name="mobile" placeholder="mobile" required></div>
+              <div class="col-6"><input class="form-control" name="aadhaar" placeholder="aadhaar" required></div>
+
+              <div class="col-6"><input class="form-control" name="pan" placeholder="pan" required></div>
+              <div class="col-6"><input class="form-control" name="address" placeholder="address" required></div>
+
+              <div class="col-4">
+                <select class="form-select" name="account_type" required>
+                  <option value="savings">Savings</option>
+                  <option value="current">Current</option>
+                </select>
+              </div>
+
+              <div class="col-4"><input class="form-control" name="initial_deposit" type="number" min="0" step="0.01" placeholder="initial_deposit" required></div>
+
+              <div class="col-4">
+                <select class="form-select" id="branchSelect" name="branch_id" required>
+                  <option value="">Loading branches...</option>
+                </select>
+              </div>
+
+              <div class="col-12"><input class="form-control" name="nominee" placeholder="nominee (optional)"></div>
+
+              <div class="col-12">
+                <div class="d-flex gap-2 align-items-center">
+                  <button class="btn-sbi" type="submit">Open Account</button>
+                  <div class="flex-grow-1" id="openMsg"></div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- VIEW/SEARCH/EDIT -->
+      <div class="tab-pane fade" id="tabView">
+        <div class="card-section">
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <label class="form-label fw-bold">Search</label>
+              <input class="form-control mb-2" id="qAccountNumber" placeholder="account number (ACC-...)">
+              <input class="form-control mb-2" id="qMobile" placeholder="mobile">
+              <input class="form-control mb-2" id="qCustomerName" placeholder="customer name">
+              <button class="btn-sbi" onclick="searchAccounts()">Search</button>
+              <div class="muted-small mt-2">Search by account_number OR mobile OR customer_name</div>
+            </div>
+
+            <div class="col-lg-8">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <div class="fw-bold">Accounts</div>
+                  <div class="muted-small">Columns: Account Number, Customer, Branch, Account Type, Balance, Status</div>
+                </div>
+                <button class="btn btn-outline-secondary" onclick="loadAccounts()">Refresh</button>
+              </div>
+
+              <div class="table-responsive mt-2">
+                <table class="table table-bordered align-middle" id="accountsTable">
+                  <thead>
+                    <tr>
+                      <th>Account Number</th>
+                      <th>Customer</th>
+                      <th>Branch</th>
+                      <th>Account Type</th>
+                      <th>Balance</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="accountsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <label class="form-label fw-bold">Edit Account</label>
+              <input class="form-control mb-2" id="editAccountNumber" placeholder="Select account number from table" disabled>
+
+              <input class="form-control mb-2" id="editMobile" placeholder="mobile">
+              <input class="form-control mb-2" id="editEmail" placeholder="email">
+              <input class="form-control mb-2" id="editAddress" placeholder="address">
+              <input class="form-control mb-2" id="editNominee" placeholder="nominee">
+              <select class="form-select mb-2" id="editAccountType">
+                <option value="savings">savings</option>
+                <option value="current">current</option>
+              </select>
+
+              <button class="btn-sbi w-100" onclick="submitEditAccount()">Update</button>
+              <div class="mt-2" id="editMsg"></div>
+            </div>
+
+            <div class="col-lg-8">
+              <div class="muted-small">Tip: click “Edit” on an account row to load its account number.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MONEY -->
+      <div class="tab-pane fade" id="tabMoney">
+        <div class="card-section">
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <div class="fw-bold mb-2">Deposit</div>
+              <input class="form-control mb-2" id="depAccountNumber" placeholder="account_number">
+              <input class="form-control mb-2" id="depAmount" type="number" min="0.01" step="0.01" placeholder="amount">
+              <button class="btn-sbi w-100" onclick="depositMoney()">Deposit</button>
+              <div class="mt-2" id="depMsg"></div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="fw-bold mb-2">Withdraw</div>
+              <input class="form-control mb-2" id="witAccountNumber" placeholder="account_number">
+              <input class="form-control mb-2" id="witAmount" type="number" min="0.01" step="0.01" placeholder="amount">
+              <button class="btn-sbi w-100" onclick="withdrawMoney()">Withdraw</button>
+              <div class="mt-2" id="witMsg"></div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="fw-bold mb-2">Transfer</div>
+              <input class="form-control mb-2" id="trSender" placeholder="sender_account_number">
+              <input class="form-control mb-2" id="trReceiver" placeholder="receiver_account_number">
+              <input class="form-control mb-2" id="trAmount" type="number" min="0.01" step="0.01" placeholder="amount">
+              <button class="btn-sbi w-100" onclick="transferMoney()">Transfer</button>
+              <div class="mt-2" id="trMsg"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FREEZE/CLOSE -->
+      <div class="tab-pane fade" id="tabFreezeClose">
+        <div class="card-section">
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <div class="fw-bold mb-2">Freeze</div>
+              <input class="form-control mb-2" id="fzAccountNumber" placeholder="account_number">
+              <button class="btn btn-warning w-100" onclick="freezeAccount()">Freeze</button>
+              <div class="mt-2" id="fzMsg"></div>
+            </div>
+            <div class="col-lg-6">
+              <div class="fw-bold mb-2">Close</div>
+              <input class="form-control mb-2" id="clAccountNumber" placeholder="account_number">
+              <button class="btn btn-danger w-100" onclick="closeAccount()">Close (set status CLOSED)</button>
+              <div class="mt-2" id="clMsg"></div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="fw-bold mb-2">Reopen</div>
+              <input class="form-control mb-2" id="reAccountNumber" placeholder="account_number">
+              <button class="btn btn-success w-100" onclick="reopenAccount()">Reopen (set status ACTIVE)</button>
+              <div class="mt-2" id="reMsg"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="tab-pane fade" id="tabHistory">
+        <div class="card-section">
+          <div class="row g-3">
+            <div class="col-lg-4">
+              <label class="form-label fw-bold">Account</label>
+              <input class="form-control mb-2" id="histAccountNumber" placeholder="account_number">
+              <div class="d-flex gap-2 mb-2">
+                <select class="form-select" id="histType">
+                  <option value="">All</option>
+                  <option value="CREDIT">CREDIT</option>
+                  <option value="DEBIT">DEBIT</option>
+                  <option value="TRANSFER">TRANSFER</option>
+                </select>
+              </div>
+              <button class="btn-sbi w-100" onclick="loadHistory()">Load History</button>
+              <div class="mt-2" id="histMsg"></div>
+            </div>
+            <div class="col-lg-8">
+              <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                  <thead>
+                    <tr>
+                      <th>Txn ID</th>
+                      <th>Type</th>
+                      <th>Amount</th>
+                      <th>Balance After</th>
+                      <th>Created At</th>
+                      <th>From/To</th>
+                    </tr>
+                  </thead>
+                  <tbody id="histBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const API_BASE = "http://localhost:8000";
+
+    const setApiStatus = (txt) => {
+      const el = document.getElementById('apiStatus');
+      if(el) el.textContent = 'API: ' + txt;
+    };
+
+    const showMsg = (elId, type, text) => {
+      const el = document.getElementById(elId);
+      if(!el) return;
+      const cls = type === 'success' ? 'alert alert-success mb-0' : 'alert alert-danger mb-0';
+      el.className = cls;
+      el.innerHTML = text;
+    };
+
+    async function loadBranches(){
+      setApiStatus('loading branches');
+      const res = await fetch(`${API_BASE}/accounts/branches`);
+      const data = await res.json();
+      const select = document.getElementById('branchSelect');
+      select.innerHTML = '<option value="">Select Branch</option>';
+      data.forEach(b => {
+        // IMPORTANT: use existing branches.branch_id value
+        select.innerHTML += `<option value="${b.branch_id}">${b.branch_name} (${b.branch_id})</option>`;
+      });
+      setApiStatus('ready');
+    }
+
+    document.getElementById('openAccountForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setApiStatus('opening account');
+      const form = e.target;
+      const payload = Object.fromEntries(new FormData(form).entries());
+
+      const res = await fetch(`${API_BASE}/accounts/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if(res.ok && data.success){
+        showMsg('openMsg','success', data.message + ' | ' + (data.account_number || ''));
+        form.reset();
+        await loadAccounts();
+      } else {
+        showMsg('openMsg','error' === 'error' ? 'danger' : 'danger', data.message || 'Open account failed');
+      }
+      setApiStatus('ready');
+    });
+
+   async function loadAccounts(){
+  setApiStatus('loading accounts');
+
+  const res = await fetch(`${API_BASE}/accounts/manager/all`, {
+    headers: {
+      "Authorization": `Bearer ${sessionStorage.getItem("access_token")}`
+    }
+  });
+
+  const data = await res.json();
+
+  console.log("API RESPONSE 👉", data); // ✅ HERE
+
+  const accounts = data.accounts || [];
+
+  const tbody = document.getElementById('accountsBody');
+  tbody.innerHTML = '';
+
+  accounts.forEach(a => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${a.account_number}</td>
+      <td>${a.customer_name}</td>
+      <td>${a.branch_id}</td>
+      <td>${a.account_type}</td>
+      <td>₹${Number(a.balance).toFixed(2)}</td>
+      <td>${a.status}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  setApiStatus('ready');
+}
+    async function searchAccounts(){
+      setApiStatus('searching');
+      const qAccountNumber = document.getElementById('qAccountNumber').value.trim();
+      const qMobile = document.getElementById('qMobile').value.trim();
+      const qCustomerName = document.getElementById('qCustomerName').value.trim();
+
+      const params = new URLSearchParams();
+      if(qAccountNumber) params.set('account_number', qAccountNumber);
+      if(qMobile) params.set('mobile', qMobile);
+      if(qCustomerName) params.set('customer_name', qCustomerName);
+
+      const res = await fetch(`${API_BASE}/accounts/manager/search?...`, {
+  headers: {
+    "Authorization": `Bearer ${sessionStorage.getItem("access_token")}`
+  }
+});
+      const data = await res.json();
+
+      const tbody = document.getElementById('accountsBody');
+      tbody.innerHTML = '';
+
+      data.forEach(a => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${a.account_number}</td>
+          <td>${a.customer_name}</td>
+          <td>${a.branch_name || a.branch_id}</td>
+          <td>${a.account_type}</td>
+          <td>₹${Number(a.balance).toFixed(2)}</td>
+          <td>${a.status}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" onclick="selectForEdit('${a.account_number}','${a.mobile||''}','${a.email||''}','${a.address||''}','${a.nominee||''}','${a.account_type}')">Edit</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      setApiStatus('ready');
+    }
+
+    function selectForEdit(account_number, mobile, email, address, nominee, account_type){
+      document.getElementById('editAccountNumber').value = account_number;
+      document.getElementById('editMobile').value = mobile;
+      document.getElementById('editEmail').value = email;
+      document.getElementById('editAddress').value = address;
+      document.getElementById('editNominee').value = nominee;
+      document.getElementById('editAccountType').value = account_type || 'savings';
+      document.getElementById('editMsg').innerHTML = '';
+    }
+
+    async function submitEditAccount(){
+      const account_number = document.getElementById('editAccountNumber').value;
+      if(!account_number) return;
+
+      const payload = {
+        mobile: document.getElementById('editMobile').value.trim() || null,
+        email: document.getElementById('editEmail').value.trim() || null,
+        address: document.getElementById('editAddress').value.trim() || null,
+        nominee: document.getElementById('editNominee').value.trim() || null,
+        account_type: document.getElementById('editAccountType').value
+      };
+
+      setApiStatus('updating account');
+      const res = await fetch(`${API_BASE}/accounts/${encodeURIComponent(account_number)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if(res.ok && data.success){
+        document.getElementById('editMsg').className = 'alert alert-success mb-0';
+        document.getElementById('editMsg').textContent = data.message;
+        await loadAccounts();
+      } else {
+        document.getElementById('editMsg').className = 'alert alert-danger mb-0';
+        document.getElementById('editMsg').textContent = data.message || 'Update failed';
+      }
+      setApiStatus('ready');
+    }
+
+    async function depositMoney(){
+      const account_number = document.getElementById('depAccountNumber').value.trim();
+      const amount = document.getElementById('depAmount').value;
+      if(!account_number || !amount) return;
+      setApiStatus('depositing');
+      const res = await fetch(`${API_BASE}/accounts/deposit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account_number, amount })
+      });
+      const data = await res.json();
+      if(res.ok && data.success){ showMsg('depMsg','success', data.message); await loadAccounts(); }
+      else { showMsg('depMsg','danger', data.message || 'Deposit failed'); }
+      setApiStatus('ready');
+    }
+
+    async function withdrawMoney(){
+      const account_number = document.getElementById('witAccountNumber').value.trim();
+      const amount = document.getElementById('witAmount').value;
+      if(!account_number || !amount) return;
+      setApiStatus('withdrawing');
+      const res = await fetch(`${API_BASE}/accounts/withdraw`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account_number, amount })
+      });
+      const data = await res.json();
+      if(res.ok && data.success){ showMsg('witMsg','success', data.message); await loadAccounts(); }
+      else { showMsg('witMsg','danger', data.message || 'Withdraw failed'); }
+      setApiStatus('ready');
+    }
+
+    async function transferMoney(){
+      const sender_account_number = document.getElementById('trSender').value.trim();
+      const receiver_account_number = document.getElementById('trReceiver').value.trim();
+      const amount = document.getElementById('trAmount').value;
+      if(!sender_account_number || !receiver_account_number || !amount) return;
+      setApiStatus('transferring');
+      const res = await fetch(`${API_BASE}/accounts/transfer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sender_account_number, receiver_account_number, amount })
+      });
+      const data = await res.json();
+      if(res.ok && data.success){ showMsg('trMsg','success', data.message); await loadAccounts(); }
+      else { showMsg('trMsg','danger', data.message || 'Transfer failed'); }
+      setApiStatus('ready');
+    }
+
+    async function freezeAccount(){
+      const account_number = document.getElementById('fzAccountNumber').value.trim();
+      if(!account_number) return;
+      setApiStatus('freezing');
+      const res = await fetch(`${API_BASE}/accounts/${encodeURIComponent(account_number)}/freeze`, { method: 'POST' });
+      const data = await res.json();
+      if(res.ok && data.success){ showMsg('fzMsg','success', data.message); await loadAccounts(); }
+      else { showMsg('fzMsg','danger', data.message || 'Freeze failed'); }
+      setApiStatus('ready');
+    }
+
+    async function closeAccount(){
+      const account_number = document.getElementById('clAccountNumber').value.trim();
+      if(!account_number) return;
+      setApiStatus('closing');
+      const res = await fetch(`${API_BASE}/accounts/${encodeURIComponent(account_number)}/close`, { method: 'POST' });
+      const data = await res.json();
+      if(res.ok && data.success){ showMsg('clMsg','success', data.message); await loadAccounts(); }
+      else { showMsg('clMsg','danger', data.message || 'Close failed'); }
+      setApiStatus('ready');
+    }
+
+    async function reopenAccount(){
+      const account_number = document.getElementById('reAccountNumber').value.trim();
+      if(!account_number) return;
+      setApiStatus('reopening');
+      const res = await fetch(`${API_BASE}/accounts/${encodeURIComponent(account_number)}/reopen`, { method: 'POST' });
+      const data = await res.json();
+      if(res.ok && data.success){ showMsg('reMsg','success', data.message); await loadAccounts(); }
+      else { showMsg('reMsg','danger', data.message || 'Reopen failed'); }
+      setApiStatus('ready');
+    }
+
+
+    async function loadHistory(){
+      const account_number = document.getElementById('histAccountNumber').value.trim();
+      if(!account_number) return;
+      const tx_type = document.getElementById('histType').value;
+
+      setApiStatus('loading history');
+      const url = `${API_BASE}/accounts/transactions/${encodeURIComponent(account_number)}${tx_type ? ('?tx_type=' + encodeURIComponent(tx_type)) : ''}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const tbody = document.getElementById('histBody');
+      tbody.innerHTML = '';
+
+      const history = data.history || [];
+      if(history.length === 0){
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">No transactions</td></tr>';
+        setApiStatus('ready');
+        return;
+      }
+
+      history.forEach(t => {
+        const fromTo = t.transaction_type === 'TRANSFER'
+          ? `${t.sender_account_number || ''} → ${t.receiver_account_number || ''}`
+          : `${t.account_number || ''}`;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${t.transaction_id}</td>
+          <td>${t.transaction_type}</td>
+          <td>₹${Number(t.amount).toFixed(2)}</td>
+          <td>₹${Number(t.balance_after).toFixed(2)}</td>
+          <td>${t.created_at ? new Date(t.created_at).toLocaleString() : ''}</td>
+          <td>${fromTo}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      setApiStatus('ready');
+    }
+
+    // init
+    loadBranches();
+    // lazy load accounts when user visits tabView
+    document.getElementById('tabView').addEventListener('shown.bs.tab', loadAccounts);
+  </script>
+</body>
+</html>

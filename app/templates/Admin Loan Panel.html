@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SBI Admin Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Inter;
+}
+
+body{
+  background:#f4f7fb;
+  display:flex;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:260px;
+  background:#0b2a4a;
+  color:#fff;
+  height:100vh;
+  padding:20px;
+  position:fixed;
+  left:0;
+  top:0;
+}
+
+.sidebar h2{
+  margin-bottom:20px;
+}
+
+.sidebar ul{
+  list-style:none;
+}
+
+.sidebar li{
+  padding:12px;
+  margin:5px 0;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.sidebar li:hover{
+  background:#123a66;
+}
+
+/* MAIN */
+.main{
+  margin-left:260px;
+  width:calc(100% - 260px);
+  overflow-x:hidden;
+}
+
+/* TOPBAR */
+.topbar{
+  background:#fff;
+  padding:15px 25px;
+  display:flex;
+  justify-content:space-between;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* CARDS */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:15px;
+  padding:20px;
+}
+
+.card{
+  background:#fff;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:15px;
+  padding:0 20px 20px;
+}
+
+.box{
+  background:#fff;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+}
+
+.status{
+  padding:5px 10px;
+  border-radius:8px;
+  font-size:12px;
+}
+
+.pending{background:#fff3cd;}
+.approved{background:#d4edda;}
+.rejected{background:#f8d7da;}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>🏦 SBI Admin</h2>
+  <ul>
+    <li>Dashboard</li>
+    <li>User Management</li>
+    <li>Branches</li>
+    <li>Accounts</li>
+    <li>Transactions</li>
+        <li>Loan application</li>
+    <li>Reports</li>
+  </ul>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="topbar">
+    <h3>Admin Dashboard</h3>
+    <div id="dateBox"></div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="cards" id="cards"></div>
+
+  <!-- GRAPHS -->
+  <div class="grid">
+
+    <div class="box">
+      <h4>Loan Trend</h4>
+      <canvas id="lineChart"></canvas>
+    </div>
+
+    <div class="box">
+      <h4>Loan Types</h4>
+      <canvas id="pieChart"></canvas>
+    </div>
+
+    <div class="box" id="summaryBox"></div>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="box" style="margin:0 20px;">
+    <h4>Recent Loans</h4>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody id="loanTable"></tbody>
+    </table>
+
+  </div>
+
+</div>
+
+<script>
+
+document.getElementById("dateBox").innerText =
+  new Date().toLocaleDateString();
+
+
+// ---------------- SUMMARY CARDS ----------------
+async function loadSummary() {
+  try {
+    let res = await fetch("/api/dashboard/summary");
+    let d = await res.json();
+
+    document.getElementById("cards").innerHTML = `
+      <div class="card"><h3>Total Loans</h3><h2>${d.total_loans}</h2></div>
+      <div class="card"><h3>Pending</h3><h2>${d.pending}</h2></div>
+      <div class="card"><h3>Approved</h3><h2>${d.approved}</h2></div>
+      <div class="card"><h3>Rejected</h3><h2>${d.rejected}</h2></div>
+      <div class="card"><h3>Disbursed</h3><h2>${d.disbursed}</h2></div>
+      <div class="card"><h3>Branches</h3><h2>${d.branches}</h2></div>
+    `;
+
+    document.getElementById("summaryBox").innerHTML = `
+      <h4>Quick Summary</h4>
+      <p>Approved: ${d.approved}</p>
+      <p>Pending: ${d.pending}</p>
+      <p>Rejected: ${d.rejected}</p>
+      <hr>
+      <p><b>Approval Rate: ${d.approval_rate}%</b></p>
+    `;
+  }
+  catch(err){
+    console.log(err);
+
+    document.getElementById("cards").innerHTML = `
+      <div class="card"><h3>Total Loans</h3><h2>0</h2></div>
+      <div class="card"><h3>Pending</h3><h2>0</h2></div>
+      <div class="card"><h3>Approved</h3><h2>0</h2></div>
+      <div class="card"><h3>Rejected</h3><h2>0</h2></div>
+      <div class="card"><h3>Disbursed</h3><h2>₹0</h2></div>
+      <div class="card"><h3>Branches</h3><h2>0</h2></div>
+    `;
+  }
+}
+
+
+// ---------------- TABLE ----------------
+async function loadLoans(){
+  try{
+    let res = await fetch("/api/dashboard/loans");
+    let data = await res.json();
+
+    document.getElementById("loanTable").innerHTML =
+      data.map(l => `
+        <tr>
+          <td>${l.id}</td>
+          <td>${l.name}</td>
+          <td>${l.type}</td>
+          <td>${l.amount}</td>
+          <td><span class="status ${l.status.toLowerCase()}">${l.status}</span></td>
+        </tr>
+      `).join("");
+  }
+  catch(e){
+    console.log(e);
+  }
+}
+
+
+// ---------------- CHARTS ----------------
+async function loadCharts(){
+  try{
+    let res = await fetch("/api/dashboard/chart");
+    let d = await res.json();
+
+    new Chart(document.getElementById("lineChart"),{
+      type:"line",
+      data:{
+        labels:d.trend.labels,
+        datasets:[{
+          label:"Applications",
+          data:d.trend.values,
+          borderColor:"blue",
+          fill:false
+        }]
+      }
+    });
+
+    new Chart(document.getElementById("pieChart"),{
+      type:"pie",
+      data:{
+        labels:d.types.labels,
+        datasets:[{
+          data:d.types.values,
+          backgroundColor:["#4e79a7","#f28e2c","#e15759"]
+        }]
+      }
+    });
+  }
+  catch(e){
+    console.log(e);
+  }
+}
+
+
+// INIT
+loadSummary();
+loadLoans();
+loadCharts();
+
+</script>
+
+</body>
+</html>

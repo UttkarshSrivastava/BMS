@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Digital Dashboard</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+
+/* LIGHT THEME COLORS */
+
+--dark-blue:#f4f6f9;
+--sidebar-dark:#ffffff;
+--card-dark:#ffffff;
+
+--accent-yellow:#ffb300;
+--accent-purple:#381c62;
+
+--text-light:#2c3e50;
+--text-muted:#7f8c8d;
+
+--success-green:#27ae60;
+--danger-red:#e74c3c;
+
+--orange:#a0522d;
+
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+
+background-color:var(--dark-blue);
+color:var(--text-light);
+display:flex;
+min-height:100vh;
+
+}
+
+/* SIDEBAR */
+
+.sidebar{
+
+width:250px;
+background-color:var(--sidebar-dark);
+padding:20px;
+display:flex;
+flex-direction:column;
+box-shadow:2px 0 5px rgba(0,0,0,0.1);
+position:fixed;
+height:100vh;
+
+}
+
+.sbi-logo-container{
+display:flex;
+align-items:center;
+margin-bottom:30px;
+}
+
+.sbi-logo-container img{
+width:30px;
+margin-right:10px;
+}
+
+.profile-card{
+display:flex;
+flex-direction:column;
+align-items:center;
+margin-bottom:30px;
+}
+
+.profile-card img{
+width:70px;
+height:70px;
+border-radius:50%;
+margin-bottom:10px;
+border:3px solid var(--accent-yellow);
+}
+
+.nav-links a{
+
+display:flex;
+align-items:center;
+padding:12px;
+text-decoration:none;
+color:var(--text-muted);
+border-radius:8px;
+margin-bottom:8px;
+
+}
+
+.nav-links a:hover{
+background:#f1f1f1;
+color:#000;
+}
+
+/* MAIN */
+
+.main-content{
+
+margin-left:250px;
+flex-grow:1;
+padding:30px;
+
+}
+
+.dashboard-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:30px;
+}
+
+.account-select button{
+
+background:var(--accent-yellow);
+border:none;
+padding:10px 20px;
+border-radius:6px;
+cursor:pointer;
+
+}
+
+/* GRID */
+
+.dashboard-grid{
+
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:30px;
+
+}
+
+.left-column{
+display:flex;
+flex-direction:column;
+gap:30px;
+}
+
+.right-column{
+display:flex;
+flex-direction:column;
+gap:30px;
+}
+
+/* CARD */
+
+.card-container{
+
+background:var(--card-dark);
+padding:25px;
+border-radius:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+
+}
+
+.balance-section h1{
+font-size:2.5rem;
+}
+
+.finance-card{
+
+border-radius:10px;
+padding:15px;
+color:white;
+
+}
+
+.income-card{background:#e74c3c;}
+.expense-card{background:#a0522d;}
+.saving-card{background:#381c62;}
+
+.financial-record-grid{
+
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:20px;
+
+}
+
+.dynamic-placeholder{
+
+height:150px;
+display:flex;
+justify-content:center;
+align-items:center;
+color:var(--text-muted);
+background:#fafafa;
+border:1px dashed #ccc;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="sbi-logo-container">
+
+
+
+</div>
+
+<div class="profile-card">
+
+<img src="https://i.imgur.com/8Q9jT6t.png">
+
+<h3 id="username">User</h3>
+
+
+</div>
+
+<div class="nav-links">
+
+<a href="#"><i class="fas fa-home"></i> Overview</a>
+<a href="/apply-card/user"><i class="far fa-credit-card"></i> Cards</a>
+<a href="Transfer.html"><i class="fas fa-exchange-alt"></i> Payments</a>
+<a href="/apply-loan/user"><i class="fas fa-exchange-alt"></i>Loans</a>
+<a href="/loan-status/user"><i class="fas fa-exchange-alt"></i>Loans Status</a>
+<a href="/card-documents"><i class="far fa-credit-card"></i> Cards Status</a>
+
+
+</div>
+
+</div>
+
+
+<div class="main-content">
+
+<div class="dashboard-header">
+
+<h1 id="welcomeText">Hello 👋</h1>
+
+<div style="display:flex;align-items:center;gap:12px;">
+    <div class="notify-wrap" aria-label="Notifications" style="position:relative;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:#f6f6f6;">
+        <i class="fas fa-bell" style="color:var(--accent-yellow);"></i>
+        <span id="notificationCount" style="position:absolute;top:6px;right:6px;background:var(--accent-yellow);color:#222;font-size:11px;padding:2px 6px;border-radius:999px;display:none;">0</span>
+    </div>
+    <button id="logoutBtn" style="border:none;background:#ffffff;border:1px solid #e5e5e5;border-radius:12px;padding:10px 14px;cursor:pointer;">Logout</button>
+</div>
+
+<div class="account-select">
+
+
+</div>
+
+</div>
+
+
+<div class="dashboard-grid">
+
+<div class="left-column">
+
+<div class="right-column"></div>
+
+
+<div class="card-container">
+
+<div class="balance-section">
+
+<h1 id = "balancetext">My account Balance </h1>
+
+<span>Live balance will appear here</span>
+
+</div>
+
+
+<script>
+(function() {
+  const API_BASE = "http://localhost:8000";
+
+  const accountNumber = sessionStorage.getItem('customerAccountNumber');
+  const storedName = sessionStorage.getItem('customerName');
+
+  if (!accountNumber) {
+    // Not logged in
+    window.location.href = '/static/Login.html';
+    return;
+  }
+
+  // Logout
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.href = '/static/Login.html';
+    });
+  }
+
+  // Load customer profile + balance + branch + recent transactions
+  async function loadDashboard() {
+    try {
+const profileRes = await fetch(`${API_BASE}/customer/me?account_number=${encodeURIComponent(accountNumber)}`, {
+        method: 'GET'
+      });
+
+      if (!profileRes.ok) {
+        const msg = await profileRes.text();
+        throw new Error(msg || 'Failed to load profile');
+      }
+
+      const data = await profileRes.json();
+
+      // Sidebar
+      document.getElementById('username').innerText = data.customer_name || storedName || 'User';
+      document.getElementById('welcomeText').innerText = `Hello, ${data.customer_name || storedName || 'User'} 👋`;
+
+      // Balance card
+      document.getElementById('balancetext').innerText = `My account Balance , ${Number(data.balance || 0).toFixed(2)}`;
+
+      // Recent transactions (right column placeholders)
+      renderRecentTransactions(data.recent_transactions || []);
+
+      // Branch name (if present in UI; add below if you expand later)
+      // No-op for now.
+    } catch (e) {
+      console.error(e);
+      alert('Unable to load customer dashboard.');
+    }
+  }
+
+  function renderRecentTransactions(items) {
+    const rightCol = document.querySelector('.right-column');
+    if (!rightCol) return;
+
+    // Remove existing recent section if any
+    const existing = document.getElementById('recentTxCard');
+    if (existing) existing.remove();
+
+    const card = document.createElement('div');
+    card.id = 'recentTxCard';
+    card.className = 'card-container';
+    card.innerHTML = `
+      <h3 style="margin-bottom:14px;">Recent Transactions</h3>
+      <div style="max-height:320px;overflow:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          <thead>
+            <tr style="text-align:left;">
+              <th style="padding:10px 8px;border-bottom:1px solid #eee;color:#6c757d;">Type</th>
+              <th style="padding:10px 8px;border-bottom:1px solid #eee;color:#6c757d;">Amount</th>
+              <th style="padding:10px 8px;border-bottom:1px solid #eee;color:#6c757d;">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.length ? items.slice(0, 10).map(t => `
+              <tr>
+                <td style="padding:10px 8px;border-bottom:1px solid #f1f1f1;">${t.transaction_type}</td>
+                <td style="padding:10px 8px;border-bottom:1px solid #f1f1f1;">${Number(t.amount).toFixed(2)}</td>
+                <td style="padding:10px 8px;border-bottom:1px solid #f1f1f1;">${new Date(t.created_at).toLocaleString()}</td>
+              </tr>
+            `).join('') : `
+              <tr><td colspan="3" style="padding:16px 8px;color:#7f8c8d;">No transactions yet.</td></tr>
+            `}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    rightCol.prepend(card);
+  }
+
+  // Kick off
+  loadDashboard();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SBI Open Account</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#eef3ff;
+}
+
+.container{
+    width:95%;
+    max-width:1300px;
+    margin:auto;
+    padding:30px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+    flex-wrap:wrap;
+    gap:20px;
+}
+
+.logo h1{
+    color:#002b7f;
+    font-size:42px;
+}
+
+.logo p{
+    color:#666;
+}
+
+.datetime{
+    background:white;
+    padding:16px 22px;
+    border-radius:16px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
+    color:#002b7f;
+    font-weight:600;
+}
+
+.stepper{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:25px;
+}
+
+.step{
+    background:#dce7ff;
+    color:#002b7f;
+    padding:14px 20px;
+    border-radius:12px;
+    font-weight:600;
+}
+
+.step.active{
+    background:#0057ff;
+    color:white;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
+    margin-bottom:20px;
+}
+
+.card-title{
+    color:#002b7f;
+    font-size:24px;
+    margin-bottom:25px;
+    font-weight:600;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+
+.input-box label{
+    display:block;
+    margin-bottom:8px;
+    color:#444;
+    font-size:14px;
+}
+
+.input-box input,
+.input-box select{
+    width:100%;
+    padding:15px;
+    border-radius:14px;
+    border:1px solid #dce3ff;
+    background:#f8faff;
+    outline:none;
+}
+
+.button-group{
+    display:flex;
+    gap:15px;
+    margin-top:20px;
+}
+
+.btn{
+    border:none;
+    padding:14px 24px;
+    border-radius:12px;
+    cursor:pointer;
+}
+
+.primary{
+    background:#0057ff;
+    color:white;
+}
+
+.secondary{
+    background:white;
+    color:#0057ff;
+    border:2px solid #0057ff;
+}
+
+.status-box{
+    background:#f8faff;
+    padding:20px;
+    border-radius:16px;
+    margin-bottom:20px;
+    font-size:18px;
+}
+
+.pending{
+    color:#b57b00;
+}
+
+.credential-box{
+    background:#eef4ff;
+    border:2px solid #d7e4ff;
+}
+
+.credential-value{
+    color:#0057ff;
+    font-weight:700;
+    font-size:20px;
+}
+
+@media(max-width:850px){
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- HEADER -->
+
+<div class="header">
+
+    <div class="logo">
+
+        <h1>SBI</h1>
+
+        <p>
+            Online Account Opening
+        </p>
+
+    </div>
+
+    <div class="datetime" id="datetime"></div>
+
+</div>
+
+<!-- STEPPER -->
+
+<div class="stepper">
+
+    <div class="step active" id="step1Indicator">
+        Customer Details
+    </div>
+
+    <div class="step" id="step2Indicator">
+        Nominee Details
+    </div>
+
+    <div class="step" id="step3Indicator">
+        Initial Deposit
+    </div>
+
+    <div class="step" id="step4Indicator">
+        Application Status
+    </div>
+
+</div>
+
+<!-- STEP 1 -->
+
+<div id="step1Page">
+
+    <div class="card">
+
+        <div class="card-title">
+            Select Branch
+        </div>
+
+        <div class="form-grid">
+
+            <div class="input-box">
+
+                <label>
+                    Select Branch
+                </label>
+
+                <select id="branchSelect">
+
+                    <option>
+                        Loading...
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="input-box">
+
+                <label>
+                    Branch Address
+                </label>
+
+                <input
+                    type="text"
+                    id="branchAddress"
+                    readonly
+                >
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+            Customer Details
+        </div>
+
+        <div class="form-grid">
+
+            <div class="input-box">
+                <label>Full Name</label>
+                <input id="fullName">
+            </div>
+
+            <div class="input-box">
+                <label>Father Name</label>
+                <input id="fatherName">
+            </div>
+
+            <div class="input-box">
+                <label>Mobile</label>
+                <input id="mobile">
+            </div>
+
+            <div class="input-box">
+                <label>Email</label>
+                <input id="email">
+            </div>
+
+            <div class="input-box">
+                <label>Aadhaar</label>
+                <input id="aadhaar">
+            </div>
+
+            <div class="input-box">
+                <label>PAN</label>
+                <input id="pan">
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="button-group">
+
+        <button
+            class="btn primary"
+            onclick="goToStep2()"
+        >
+            Next
+        </button>
+
+    </div>
+
+</div>
+
+<!-- STEP 2 -->
+
+<div id="step2Page" style="display:none;">
+
+    <div class="card">
+
+        <div class="card-title">
+            Nominee Details
+        </div>
+
+        <div class="form-grid">
+
+            <div class="input-box">
+                <label>Name</label>
+                <input id="nomineeName">
+            </div>
+
+            <div class="input-box">
+                <label>Relation</label>
+                <input id="nomineeRelation">
+            </div>
+
+            <div class="input-box">
+                <label>Mobile</label>
+                <input id="nomineeMobile">
+            </div>
+
+            <div class="input-box">
+                <label>Address</label>
+                <input id="nomineeAddress">
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="button-group">
+
+        <button
+            class="btn secondary"
+            onclick="backToStep1()"
+        >
+            Back
+        </button>
+
+        <button
+            class="btn primary"
+            onclick="goToStep3()"
+        >
+            Next
+        </button>
+
+    </div>
+
+</div>
+
+<!-- STEP 3 -->
+
+<div id="step3Page" style="display:none;">
+
+    <div class="card">
+
+        <div class="card-title">
+            Initial Deposit
+        </div>
+
+        <div class="form-grid">
+
+            <div class="input-box">
+
+                <label>
+                    Deposit Amount
+                </label>
+
+                <input id="depositAmount">
+
+            </div>
+
+            <div class="input-box">
+
+                <label>
+                    Payment Mode
+                </label>
+
+                <select id="paymentMode">
+
+                    <option>
+                        Cash
+                    </option>
+
+                    <option>
+                        UPI
+                    </option>
+
+                    <option>
+                        Cheque
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="button-group">
+
+        <button
+            class="btn secondary"
+            onclick="backToStep2()"
+        >
+            Back
+        </button>
+
+        <button
+            class="btn primary"
+            onclick="submitApplication()"
+        >
+            Submit
+        </button>
+
+    </div>
+
+</div>
+
+<!-- STEP 4 -->
+
+<div id="step4Page" style="display:none;">
+
+    <div class="card">
+
+        <div class="card-title">
+            Application Status
+        </div>
+
+        <div class="status-box">
+
+            Employee:
+            <span
+                id="employeeStatus"
+                class="pending"
+            >
+                Pending
+            </span>
+
+        </div>
+
+        <div class="status-box">
+
+            Manager:
+            <span
+                id="managerStatus"
+                class="pending"
+            >
+                Waiting
+            </span>
+
+        </div>
+
+        <div class="status-box">
+
+            Admin:
+            <span
+                id="adminStatus"
+                class="pending"
+            >
+                Waiting
+            </span>
+
+        </div>
+
+        <!-- LOGIN DETAILS -->
+
+        <div class="status-box credential-box">
+
+            Username :
+            <span
+                id="generatedUsername"
+                class="credential-value"
+            >
+                Waiting
+            </span>
+
+        </div>
+
+        <div class="status-box credential-box">
+
+            Password :
+            <span
+                id="generatedPassword"
+                class="credential-value"
+            >
+                Waiting
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<script>
+
+/* =========================================
+DATE & TIME
+========================================= */
+
+setInterval(() => {
+
+    document.getElementById(
+        "datetime"
+    ).innerText =
+
+    new Date().toLocaleString();
+
+},1000);
+
+
+/* =========================================
+ELEMENTS
+========================================= */
+
+const branchSelect =
+document.getElementById(
+    "branchSelect"
+);
+
+const branchAddress =
+document.getElementById(
+    "branchAddress"
+);
+
+const fullName =
+document.getElementById(
+    "fullName"
+);
+
+const fatherName =
+document.getElementById(
+    "fatherName"
+);
+
+const mobile =
+document.getElementById(
+    "mobile"
+);
+
+const email =
+document.getElementById(
+    "email"
+);
+
+const aadhaar =
+document.getElementById(
+    "aadhaar"
+);
+
+const pan =
+document.getElementById(
+    "pan"
+);
+
+const nomineeName =
+document.getElementById(
+    "nomineeName"
+);
+
+const nomineeRelation =
+document.getElementById(
+    "nomineeRelation"
+);
+
+const nomineeMobile =
+document.getElementById(
+    "nomineeMobile"
+);
+
+const nomineeAddress =
+document.getElementById(
+    "nomineeAddress"
+);
+
+const depositAmount =
+document.getElementById(
+    "depositAmount"
+);
+
+const paymentMode =
+document.getElementById(
+    "paymentMode"
+);
+
+const employeeStatus =
+document.getElementById(
+    "employeeStatus"
+);
+
+const managerStatus =
+document.getElementById(
+    "managerStatus"
+);
+
+const adminStatus =
+document.getElementById(
+    "adminStatus"
+);
+
+const generatedUsername =
+document.getElementById(
+    "generatedUsername"
+);
+
+const generatedPassword =
+document.getElementById(
+    "generatedPassword"
+);
+
+
+/* =========================================
+STEP HANDLING
+========================================= */
+
+function setStep(n){
+
+    document
+    .querySelectorAll(".step")
+    .forEach(e => {
+
+        e.classList.remove(
+            "active"
+        );
+
+    });
+
+    const el =
+    document.getElementById(
+        "step" + n + "Indicator"
+    );
+
+    if(el){
+
+        el.classList.add(
+            "active"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+NAVIGATION
+========================================= */
+
+function goToStep2(){
+
+    document.getElementById(
+        "step1Page"
+    ).style.display = "none";
+
+    document.getElementById(
+        "step2Page"
+    ).style.display = "block";
+
+    setStep(2);
+
+}
+
+
+function backToStep1(){
+
+    document.getElementById(
+        "step2Page"
+    ).style.display = "none";
+
+    document.getElementById(
+        "step1Page"
+    ).style.display = "block";
+
+    setStep(1);
+
+}
+
+
+function goToStep3(){
+
+    document.getElementById(
+        "step2Page"
+    ).style.display = "none";
+
+    document.getElementById(
+        "step3Page"
+    ).style.display = "block";
+
+    setStep(3);
+
+}
+
+
+function backToStep2(){
+
+    document.getElementById(
+        "step3Page"
+    ).style.display = "none";
+
+    document.getElementById(
+        "step2Page"
+    ).style.display = "block";
+
+    setStep(2);
+
+}
+
+
+/* =========================================
+LOAD BRANCHES
+========================================= */
+
+async function loadBranches(){
+
+    try{
+
+        const response =
+        await fetch(
+            "/branch/all"
+        );
+
+        const data =
+        await response.json();
+
+        console.log(
+            "Branches:",
+            data
+        );
+
+        branchSelect.innerHTML =
+
+        `<option value="">
+            Select Branch
+        </option>`;
+
+        data.forEach(branch => {
+
+            const option =
+            document.createElement(
+                "option"
+            );
+
+            option.value =
+            branch.branch_id;
+
+            option.text =
+            branch.branch_name;
+
+            option.dataset.address =
+
+            `${branch.city},
+            ${branch.state}`;
+
+            option.dataset.name =
+            branch.branch_name;
+
+            branchSelect.appendChild(
+                option
+            );
+
+        });
+
+    }catch(error){
+
+        console.log(
+            "Branch Loading Error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================
+AUTO ADDRESS
+========================================= */
+
+branchSelect.addEventListener(
+    "change",
+    (e) => {
+
+    const option =
+    e.target.options[
+        e.target.selectedIndex
+    ];
+
+    branchAddress.value =
+    option.dataset.address || "";
+
+});
+
+
+/* =========================================
+LOAD PAGE
+========================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadBranches
+);
+
+
+/* =========================================
+SUBMIT APPLICATION
+========================================= */
+
+let appId = null;
+
+async function submitApplication(){
+
+    if(appId){
+
+        alert(
+            "Application already submitted"
+        );
+
+        return;
+
+    }
+
+    if(
+        !branchSelect.value ||
+        !fullName.value ||
+        !mobile.value ||
+        !aadhaar.value
+    ){
+
+        alert(
+            "Please fill all required details"
+        );
+
+        return;
+
+    }
+
+    const payload = {
+
+        branch_id:
+        branchSelect.value,
+
+        branch_name:
+        branchSelect.options[
+            branchSelect.selectedIndex
+        ]?.dataset.name,
+
+        full_name:
+        fullName.value,
+
+        father_name:
+        fatherName.value,
+
+        mobile:
+        mobile.value,
+
+        email:
+        email.value,
+
+        aadhaar:
+        aadhaar.value,
+
+        pan:
+        pan.value,
+
+        nominee_name:
+        nomineeName.value,
+
+        nominee_relation:
+        nomineeRelation.value,
+
+        nominee_mobile:
+        nomineeMobile.value,
+
+        nominee_address:
+        nomineeAddress.value,
+
+        deposit_amount:
+        depositAmount.value,
+
+        payment_mode:
+        paymentMode.value
+
+    };
+
+    try{
+
+        const response =
+        await fetch(
+            "/api/open-account",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:JSON.stringify(
+                    payload
+                )
+            }
+        );
+
+        const data =
+        await response.json();
+
+        console.log(data);
+
+        if(!response.ok){
+
+            alert(
+                data.message ||
+                "Application submit failed"
+            );
+
+            return;
+
+        }
+
+        appId =
+        data.application_id;
+
+        document.getElementById(
+            "step3Page"
+        ).style.display = "none";
+
+        document.getElementById(
+            "step4Page"
+        ).style.display = "block";
+
+        setStep(4);
+
+        checkStatus();
+
+    }catch(error){
+
+        console.log(error);
+
+        alert(
+            "Error submitting application"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+CHECK STATUS
+========================================= */
+
+async function checkStatus(){
+
+    if(!appId) return;
+
+    try{
+
+        const response =
+        await fetch(
+            `/api/open-account/status/${appId}`
+        );
+
+        const data =
+        await response.json();
+
+        console.log(data);
+
+        employeeStatus.innerText =
+        data.employee_status || "Pending";
+
+        managerStatus.innerText =
+        data.manager_status || "Waiting";
+
+        adminStatus.innerText =
+        data.admin_status || "Waiting";
+
+        // USERNAME = BRANCH ID
+
+        generatedUsername.innerText =
+        data.generated_username || "Waiting";
+
+        // PASSWORD = ACCOUNT NUMBER
+
+        generatedPassword.innerText =
+        data.generated_account_number || "Waiting";
+
+    }catch(error){
+
+        console.log(
+            "Status Error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================
+AUTO REFRESH
+========================================= */
+
+setInterval(
+    checkStatus,
+    5000
+);
+
+</script>
+
+</body>
+</html>

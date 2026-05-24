@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Card Documents</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Inter, Arial, Helvetica, sans-serif;}
+    body{background:#f4f6f9;color:#2c3e50;display:flex;min-height:100vh;}
+
+    .sidebar{width:270px;background:#fff;border-right:1px solid #ddd;padding:30px 20px;}
+    .sidebar h2{color:#0b2c6f;margin-bottom:35px;}
+    .step{display:flex;align-items:center;gap:15px;margin-bottom:25px;color:#666;font-size:15px;}
+    .step-number{width:38px;height:38px;border-radius:50%;background:#e4e8f0;display:flex;justify-content:center;align-items:center;font-weight:bold;}
+    .active{color:#0b57d0;font-weight:bold;}
+    .active .step-number{background:#0b57d0;color:#fff;}
+
+    .main{flex:1;padding:30px;}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;}
+    .topbar h1{color:#0b2c6f;font-size:42px;}
+
+    .card-box{background:#fff;padding:28px;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);max-width:980px;}
+    .section-title{color:#0b2c6f;margin-bottom:20px;font-size:22px;}
+
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+    @media(max-width:900px){.form-grid{grid-template-columns:1fr;} .sidebar{display:none;} .main{padding:16px;}}
+
+    .input-group{display:flex;flex-direction:column;}
+    .input-group label{margin-bottom:8px;font-weight:bold;color:#333;font-size:15px;}
+    .input-group input{padding:14px;border:1px solid #ccc;border-radius:10px;font-size:15px;outline:none;background:#fff;}
+
+    .readonly{background:#eef1f6;}
+
+    .buttons{display:flex;justify-content:flex-end;gap:15px;margin-top:24px;}
+    .cancel-btn,.submit-btn{
+      padding:13px 22px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;
+    }
+    .cancel-btn{background:#ddd;}
+    .submit-btn{background:#0b57d0;color:#fff;}
+
+    .status{margin-top:12px;font-size:14px;color:#555;}
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <h2>Apply New Card</h2>
+
+    <div class="step">
+      <div class="step-number">1</div>
+      <span>Personal Details</span>
+    </div>
+
+    <div class="step">
+      <div class="step-number">2</div>
+      <span>Card Details</span>
+    </div>
+
+    <div class="step">
+      <div class="step-number">3</div>
+      <span>Delivery Details</span>
+    </div>
+
+    <div class="step active">
+      <div class="step-number">4</div>
+      <span>Documents</span>
+    </div>
+
+    <div class="step">
+      <div class="step-number">5</div>
+      <span>Preview & Submit</span>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>Upload Documents</h1>
+      <button class="cancel-btn" style="background:#fff;border:1px solid #e5e5e5;" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="card-box">
+    <div class="section-title">Documents Upload</div>
+
+      <div class="status" id="msg"></div>
+
+      <div class="section-title" style="margin-top:22px;">Preview</div>
+      <div id="previewBox" style="font-size:14px;color:#333;margin-top:8px;"></div>
+
+      <div class="form-grid" style="margin-top:12px;">
+        <div class="input-group">
+          <label>Aadhaar Document</label>
+          <input type="file" id="aadhaar_document" />
+        </div>
+
+        <div class="input-group">
+          <label>PAN Document</label>
+          <input type="file" id="pan_document" />
+        </div>
+
+        <div class="input-group">
+          <label>Income Proof</label>
+          <input type="file" id="income_proof" />
+        </div>
+
+        <div class="input-group">
+          <label>Photo</label>
+          <input type="file" id="photo" />
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="cancel-btn" onclick="goBack()">Back</button>
+        <button class="submit-btn" onclick="submitDocuments()">Next</button>
+      </div>
+
+      <div class="status" id="resultStatus"></div>
+
+      <div class="section-title" style="margin-top:30px;">My Card Request Status</div>
+      <div id="requestsList" style="font-size:14px;color:#333;"></div>
+
+
+
+    </div>
+  </div>
+
+  <script>
+    function logout(){
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.href = '/static/Login.html';
+    }
+
+    function goBack(){
+      window.location.href = '/apply-card/user';
+    }
+
+    async function loadMyRequests(){
+      const requestsList = document.getElementById('requestsList');
+      const accountNumber = sessionStorage.getItem('customerAccountNumber');
+
+      if(!accountNumber){
+        requestsList.innerHTML = 'Login required.';
+        return;
+      }
+
+      try{
+        const res = await fetch(`http://127.0.0.1:8000/card/my-requests/${encodeURIComponent(accountNumber)}`);
+        const data = await res.json();
+        if(!data.success){
+          requestsList.innerHTML = 'Unable to load requests.';
+          return;
+        }
+
+        if(!data.data || !data.data.length){
+          requestsList.innerHTML = 'No card requests yet.';
+          return;
+        }
+
+        requestsList.innerHTML = data.data.map(r => {
+          const status = r.status || '';
+          const created = r.created_at ? new Date(r.created_at).toLocaleString() : '';
+          return `
+            <div style="padding:10px 12px;border:1px solid #eee;border-radius:10px;margin-bottom:10px;">
+              <div><b>Request ID:</b> ${r.request_id}</div>
+              <div><b>Status:</b> ${status}</div>
+              <div style="color:#666;"><b>Created:</b> ${created}</div>
+              <div style="margin-top:8px;color:#444;font-size:13px;">
+                <div><b>Aadhaar:</b> ${r.aadhaar_document || '-'}</div>
+                <div><b>PAN:</b> ${r.pan_document || '-'}</div>
+                <div><b>Income:</b> ${r.income_proof || '-'}</div>
+                <div><b>Photo:</b> ${r.photo || '-'}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      }catch(e){
+        console.error(e);
+        requestsList.innerHTML = 'Error loading requests.';
+      }
+    }
+
+    async function submitDocuments(){
+      const accountNumber = sessionStorage.getItem('customerAccountNumber');
+      const requestId = sessionStorage.getItem('card_request_id');
+      const resultStatus = document.getElementById('resultStatus');
+
+      if(!accountNumber){
+        alert('Login required');
+        window.location.href = '/static/Login.html';
+        return;
+      }
+
+      const aadhaar = document.getElementById('aadhaar_document').files.length;
+      const pan = document.getElementById('pan_document').files.length;
+      const income = document.getElementById('income_proof').files.length;
+      const photo = document.getElementById('photo').files.length;
+
+      if(aadhaar + pan + income + photo === 0){
+        alert('Please select at least one document file.');
+        return;
+      }
+
+      const draftStr = sessionStorage.getItem('card_application_draft');
+      if(!draftStr){
+        alert('Please go back and fill card details first.');
+        window.location.href = '/apply-card/user';
+        return;
+      }
+
+      const draftForUpload = JSON.parse(draftStr);
+
+      resultStatus.textContent = 'Submitting card request...';
+
+      const formData = new FormData();
+      formData.append('account_number', accountNumber);
+      if(requestId){
+        formData.append('request_id', requestId);
+      }
+
+      if (draftForUpload.card_type) formData.append('card_type', draftForUpload.card_type);
+      if (draftForUpload.network) formData.append('network', draftForUpload.network);
+      if (draftForUpload.card_variant) formData.append('card_variant', draftForUpload.card_variant);
+      if (draftForUpload.credit_limit) formData.append('credit_limit', draftForUpload.credit_limit);
+      if (draftForUpload.address) formData.append('address', draftForUpload.address);
+      if (draftForUpload.city) formData.append('city', draftForUpload.city);
+      if (draftForUpload.pincode) formData.append('pincode', draftForUpload.pincode);
+
+      const aadhaarFile = document.getElementById('aadhaar_document').files[0];
+      const panFile = document.getElementById('pan_document').files[0];
+      const incomeFile = document.getElementById('income_proof').files[0];
+      const photoFile = document.getElementById('photo').files[0];
+
+      if(aadhaarFile) formData.append('aadhaar_document', aadhaarFile);
+      if(panFile) formData.append('pan_document', panFile);
+      if(incomeFile) formData.append('income_proof', incomeFile);
+      if(photoFile) formData.append('photo', photoFile);
+
+      const response = await fetch('http://127.0.0.1:8000/card/upload-documents', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+      if(!response.ok){
+        alert(result.detail || 'Something went wrong');
+        resultStatus.textContent = 'Failed.';
+        return;
+      }
+
+      sessionStorage.removeItem('card_application_draft');
+      sessionStorage.removeItem('card_request_id');
+
+      resultStatus.textContent = 'Submitted! Refreshing status...';
+      await loadMyRequests();
+      resultStatus.textContent = 'Submitted! Status will be shown below.';
+    }
+
+    // initial render
+    loadMyRequests();
+  </script>
+
+</body>
+
+</html>
+
+
+

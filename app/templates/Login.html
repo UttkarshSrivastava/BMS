@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SBI Login Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --accent-yellow: #ffb300;
+            --accent-purple: #381c62;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            padding-top: 150px;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .main-header {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .top-logo-bar {
+            background-color: #ffffff;
+            height: 60px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 0 50px;
+        }
+
+        .sbi-logo-placeholder {
+            width: 120px;
+            height: 40px;
+            display: block;
+        }
+
+        .sbi-logo-placeholder img {
+            max-height: 100%;
+            width: auto;
+            display: block;
+        }
+
+        .middle-utility-bar {
+            background-color: var(--accent-purple);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 50px;
+            height: 40px;
+        }
+
+        .careers-link {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 5px 0;
+            transition: color 0.3s, text-decoration 0.3s;
+        }
+
+        .careers-link:hover {
+            color: var(--accent-yellow);
+            text-decoration: underline;
+        }
+
+        .contact-btn {
+            background-color: var(--accent-yellow);
+            color: #333;
+            text-decoration: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: background-color 0.3s;
+        }
+
+        .contact-btn:hover {
+            background-color: #e6a200;
+        }
+
+        .bottom-nav-bar {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px 50px;
+            border-top: 1px solid #eee;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .main-nav {
+            display: flex;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .main-nav a {
+            color: #333;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0 15px;
+            padding: 5px 0;
+            transition: color 0.3s;
+        }
+
+        .main-nav a:hover,
+        .main-nav a:focus {
+            color: var(--accent-yellow);
+        }
+
+        .login-container {
+            margin-top: 40px;
+            display: flex;
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1100px;
+            width: 90%;
+            overflow: hidden;
+        }
+
+        .login-form-section {
+            flex: 1.2;
+            padding: 50px 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 450px;
+            background: linear-gradient(to bottom right, #ffffff, #fffceb);
+        }
+
+        .logo {
+            display: none;
+        }
+
+        .welcome-text h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .welcome-text p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-top: 5px;
+            margin-bottom: 30px;
+        }
+
+        .input-group,
+        .select-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label,
+        .select-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .input-group input,
+        .select-group select {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            background-color: #f7f7f7;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        #role option[value=""][disabled] {
+            color: #aaa;
+        }
+
+        .input-group input::placeholder {
+            color: #aaa;
+        }
+
+        .select-group {
+            position: relative;
+        }
+
+        .select-group::after {
+            content: '\f078';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(calc(50% - 10px));
+            color: #aaa;
+            pointer-events: none;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 50px;
+        }
+
+        .password-wrapper .eye-icon {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(to right, #ffdc5f, var(--accent-yellow));
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-button:hover {
+            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.4);
+        }
+
+        .social-login {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 25px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background-color: #fff;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .social-btn i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .apple {
+            color: #000;
+        }
+
+        .google {
+            color: #4285F4;
+        }
+
+        .social-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .options {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: 10px;
+        }
+
+        .options input[type='checkbox'] {
+            margin-right: 8px;
+        }
+
+        .options a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .options a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 50px;
+        }
+
+        .footer-links a {
+            color: #777;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .login-image-section {
+            flex: 1.5;
+            position: relative;
+            background-color: #f7f7f7;
+            min-height: 650px;
+        }
+
+        .login-image-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .main-header {
+                position: relative;
+                box-shadow: none;
+            }
+            .top-logo-bar,
+            .middle-utility-bar,
+            .bottom-nav-bar {
+                padding: 15px 20px;
+                height: auto;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .main-nav {
+                display: none;
+            }
+            .contact-btn {
+                width: 100%;
+                text-align: center;
+            }
+            .sbi-logo-placeholder {
+                margin: 0;
+            }
+            body {
+                padding-top: 0;
+            }
+            .login-container {
+                margin-top: 20px;
+                flex-direction: column;
+                width: 100%;
+                max-width: 500px;
+            }
+            .login-form-section {
+                min-width: unset;
+                padding: 30px;
+            }
+            .login-image-section {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="top-logo-bar">
+            <div class="sbi-logo-placeholder">
+                <h4>Opalina Bank</h4>
+            </div>
+        </div>
+
+        <div class="middle-utility-bar">
+            <a href="#" class="careers-link">CAREERS</a>
+            <a href="#" class="contact-btn">CONTACT US</a>
+        </div>
+
+        <div class="bottom-nav-bar">
+            <nav class="main-nav">
+                <a href="/">HOME</a>
+             
+                <a href="/signup">SIGNUP</a>
+                <a href="/login">LOGIN</a>
+                            </nav>
+        </div>
+    </header>
+
+    <div class="login-container">
+        <div class="login-form-section">
+            <div class="logo">Opalina Bank</div>
+
+            <div class="welcome-text">
+                <h1>Log in to Opalina Bank</h1>
+                <p>Welcome back!</p>
+            </div>
+
+            <div id="error-msg" style="display:none; background-color: #fee; border: 1px solid #fcc; color: #c33; padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem;">
+                <i class="fas fa-exclamation-circle"></i> <span id="error-text"></span>
+            </div>
+
+            <form id="loginForm" onsubmit="return false;">
+
+                <div class="select-group">
+                    <label for="role">Login As</label>
+                    <select id="role" name="role" required>
+                        <option value="" disabled selected>--select role--</option>
+                        <option value="signup_user">New User</option>
+                        <option value="user">Customer</option>
+                        <option value="admin">Admin</option>
+                        <option value="branch_manager">Branch Manager</option>
+                        <option value="branch_employee">Branch Employee</option>
+                    </select>
+                </div>
+
+
+<div class="input-group">
+                    <label for="username">Username (Branch ID)</label>
+                    <input type="text" id="username" name="username" placeholder="Enter Branch ID" required />
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password (Account No)</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" placeholder="Enter Account Number" required />
+                        <span class="eye-icon" onclick="togglePassword()"><i id="eye" class="far fa-eye"></i></span>
+                    </div>
+                </div>
+
+
+                <button type="submit" class="login-button">Log In</button>
+            </form>
+
+            <script>
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            async function handleLogin(event) {
+                event.preventDefault();
+                
+                const role = document.getElementById('role').value;
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const errorMsg = document.getElementById('error-msg');
+                const errorText = document.getElementById('error-text');
+                
+                errorMsg.style.display = 'none';
+                
+                if (!role) {
+                    errorText.textContent = 'Please select role';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+                
+                if (!username || !password) {
+                    errorText.textContent = 'Username and password required';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+
+               const API_BASE = "http://127.0.0.1:8000";
+
+                // Unified flow: backend validated login for supported roles
+                try {
+                    const res = await fetch(`${API_BASE}/api/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            role: role,
+                            username: username,
+                            password: password
+                        })
+                    });
+                    const data = await res.json();
+
+                    if (!res.ok || !data.success) {
+                        errorText.textContent = data.message || 'Invalid credentials';
+                        errorMsg.style.display = 'block';
+                        return;
+                    }
+
+                    sessionStorage.setItem('isLoggedIn', 'true');
+
+                    if (role === 'signup_user' && data.role === 'signup_user') {
+
+    sessionStorage.setItem('signupUser', 'true');
+
+    window.location.href = '/aftersignup.html';
+
+    return;
+}
+
+                    // Customer
+                    if (role === 'user' && data.customer) {
+                        sessionStorage.setItem('customerAccountNumber', data.customer.account_number);
+                        sessionStorage.setItem('customerName', data.customer.customer_name);
+                        sessionStorage.setItem('customerBranchId', data.customer.branch_id);
+                        window.location.href = '/user';
+                        return;
+                    }
+
+                    // Admin
+                    if (role === 'admin' && data.role === 'admin') {
+                     sessionStorage.setItem('admin', 'true');
+                     window.location.href = '/admin';
+                         return;
+}
+
+                    // Branch Manager
+                    if (role === 'branch_manager' && (data.role === 'branch_manager' || data.role === 'manager' || data.branch_manager)) {
+                        if (data.access_token) {
+                            sessionStorage.setItem('access_token', data.access_token);
+                        }
+
+                        sessionStorage.setItem('employeeBranchId', String(data.branch_id));
+                        const name = data.name || '';
+window.location.href = '/branch-manager/dashboard?name=' + encodeURIComponent(name);
+                        return;
+                    }
+
+                    // Branch Employee (make token saving + redirect deterministic)
+                   if (role === 'branch_employee' && data.role === 'branch_employee') {
+
+    // SAVE TOKEN
+    if (data.access_token) {
+
+        localStorage.setItem(
+  "access_token",
+  data.access_token
+);
+
+        console.log("TOKEN SAVED =>", data.access_token);
+    }
+
+    // SAVE OTHER DATA
+    localStorage.setItem(
+        'employeeBranchId',
+        String(data.branch_id || '')
+    );
+
+    if (data.name) {
+        localStorage.setItem('employeeName', data.name);
+    }
+
+    // REDIRECT
+    window.location.href = '/employees/branch-dashboard';
+
+    return;
+}
+
+
+
+                    // Fallback if role returned success but no known redirect payload
+                    errorText.textContent = 'Login successful, but this role has no dashboard wired yet.';
+                    errorMsg.style.display = 'block';
+                } catch (e) {
+                    errorText.textContent = 'Network error. Please try again.';
+                    errorMsg.style.display = 'block';
+                }
+            }
+
+            function togglePassword() {
+                const passwordInput = document.getElementById('password');
+                const eyeIcon = document.getElementById('eye');
+                if(passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    eyeIcon.classList.remove('fa-eye');
+                    eyeIcon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = "password";
+                    eyeIcon.classList.remove('fa-eye-slash');
+                    eyeIcon.classList.add('fa-eye');
+                }
+            }
+            </script>
+
+        
+
+            <div class="options">
+                <input type="checkbox" id="remember" />
+                <label for="remember">Remember me? <a href="signup.html">Sign up now</a></label>
+            </div>
+
+            <div class="footer-links">
+                <p>Don't have account? <a href=""/signup"Sign In</a></p>
+               
+            </div>
+        </div>
+
+        <div class="login-image-section">
+            <img src="https://images.stockcake.com/public/d/4/d/d4d2c322-7419-4108-aed2-b7345be5da74_large/global-business-handshake-stockcake.jpg" alt="Bank Image" />
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye');
+            if(passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>

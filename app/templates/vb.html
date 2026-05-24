@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Employees | SBI Admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+:root {
+    --primary-dark: #2C3E50;
+    --primary-red: #A52121;
+    --sidebar-hover-bg: #4A637C;
+    --gold-accent: #FFC300;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #f5f6f7;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background: var(--primary-dark);
+    color: #fff;
+    padding-top: 25px;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.sidebar-menu a {
+    display: block;
+    padding: 14px 22px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #fff;
+    transition: 0.3s;
+}
+
+.sidebar-menu a i {
+    margin-right: 12px;
+}
+
+.sidebar-menu a:hover {
+    background: var(--sidebar-hover-bg);
+    transform: translateX(6px);
+}
+
+.sidebar-menu a.active {
+    background: var(--primary-red);
+    font-weight: 700;
+    border-left: 5px solid var(--gold-accent);
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 240px;
+    padding: 40px;
+}
+
+h1 {
+    color: #2C3E50;
+}
+</style>
+</head>             
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-menu">
+     <a href="/employees/dashboard"><i class="fas fa-tachometer-alt"></i> Employee Dashboard</a>
+       <a href="/employees/add"><i class="fas fa-user-plus"></i> Add New Employee</a>
+        <a href="/employees/transfer"><i class="fas fa-exchange-alt"></i> Transfer Employee</a>
+    </div>
+</div>
+
+<div class="main-content">
+    <h1>Manage Employees</h1>
+    <p>Select an option from the sidebar to manage employees.</p>
+</div>
+
+</body>
+</html>
+

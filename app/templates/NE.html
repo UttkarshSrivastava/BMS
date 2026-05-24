@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add New Employee | SBI Admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #f5f6f7;
+}
+
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background: #2C3E50;
+    color: #fff;
+    padding-top: 25px;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.sidebar-menu a {
+    display: block;
+    padding: 14px 22px;
+    text-decoration: none;
+    color: #fff;
+}
+
+.sidebar-menu a:hover {
+    background: #4A637C;
+}
+
+.main-content {
+    margin-left: 240px;
+    padding: 40px;
+}
+
+.form-container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 700px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-menu">
+        <a href="showemploye.html">Employee Dashboard</a>
+        <a href="NE.html">Add New Employee</a>
+        <a href="transfer_employee.html">Transfer Employee</a>
+    </div>
+</div>
+
+<div class="main-content">
+<h2>Add New Employee</h2>
+
+<div class="form-container">
+
+<div id="errorMessage" style="color:red;"></div>
+<div id="successMessage" style="color:green;"></div>
+
+<form id="addEmployeeForm">
+
+<label>First Name</label>
+<input name="first_name" required>
+
+<label>Last Name</label>
+<input name="last_name" required>
+
+<label>Email</label>
+<input name="email" type="email" required>
+
+<label>Phone</label>
+<input name="phone" required>
+
+<label>Department</label>
+<select name="department" required>
+    <option value="">Select</option>
+    <option>Manager</option>
+    <option>Employee</option>
+</select>
+
+<label>Branch</label>
+<select name="branch_id" id="branchSelect"></select>
+
+<label>Salary</label>
+<input name="salary" type="number" required>
+
+<br><br>
+<button type="submit">Add Employee</button>
+
+</form>
+</div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000";
+
+/* LOAD BRANCHES */
+async function loadBranches() {
+    try {
+        const res = await fetch(API + "/branch/all");
+        const data = await res.json();
+
+        const select = document.getElementById("branchSelect");
+        select.innerHTML = "<option value=''>Select Branch</option>";
+
+        data.forEach(b => {
+            const opt = document.createElement("option");
+            opt.value = b.branch_id;
+            opt.textContent = b.branch_name + " (" + b.branch_id + ")";
+            select.appendChild(opt);
+        });
+
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+/* SUBMIT EMPLOYEE */
+document.getElementById('addEmployeeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    const payload = {
+        first_name: formData.get("first_name"),
+        last_name: formData.get("last_name"),
+        email: formData.get("email"),
+        phone: formData.get("phone"),
+        department: formData.get("department"),
+        branch_id: formData.get("branch_id"),
+        salary: Number(formData.get("salary"))
+    };
+
+    const res = await fetch("http://127.0.0.1:8000/employee/create", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+        alert("Employee Added Successfully");
+        e.target.reset();
+    } else {
+        alert(data.detail || "Error Occurred");
+    }
+});
+
+loadBranches();
+</script>
+
+</body>
+</html>

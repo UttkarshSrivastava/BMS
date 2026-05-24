@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Branch Manager Card Requests</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial, Helvetica, sans-serif;}
+    body{background:#f4f7fb;display:flex;}
+
+    .sidebar{
+      width:240px;
+      height:100vh;
+      background:#142850;
+      position:fixed;
+      left:0;
+      top:0;
+      padding:25px 18px;
+      color:white;
+      overflow-y:auto;
+    }
+
+    .logo{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:40px;
+      font-size:28px;
+      font-weight:700;
+    }
+
+    .logo-box{
+      width:45px;
+      height:45px;
+      background:white;
+      border-radius:10px;
+    }
+
+    .menu{list-style:none;}
+
+    .menu li{
+      padding:14px 16px;
+      border-radius:12px;
+      margin-bottom:10px;
+      cursor:pointer;
+      transition:0.3s;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-size:15px;
+    }
+
+    .menu li:hover,
+    .menu .active{background:#243b6b;}
+
+    .main{
+      margin-left:240px;
+      width:calc(100% - 240px);
+      padding:25px;
+    }
+
+    .topbar{
+      background:white;
+      border-radius:18px;
+      padding:18px 25px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:25px;
+      box-shadow:0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .topbar h1{font-size:26px;color:#1d2b53;}
+
+    .logout{
+      background:#ffffff;
+      border:1px solid #e5e5e5;
+      border-radius:12px;
+      padding:10px 14px;
+      cursor:pointer;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+      margin-bottom:22px;
+    }
+
+    .card{
+      background:white;
+      border-radius:15px;
+      padding:18px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .card h4{color:#666;margin-bottom:10px;font-size:14px;font-weight:600;}
+    .card h2{font-size:26px;color:#0b2c6f;}
+
+    .table-box{
+      background:white;
+      border-radius:15px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.05);
+      padding:18px;
+    }
+
+    table{width:100%;border-collapse:collapse;}
+    th{background:#f3f4f6;padding:12px;text-align:left;color:#333;font-size:13px;}
+    td{padding:12px;border-bottom:1px solid #eee;font-size:13px;color:#333;vertical-align:top;}
+
+    .btn{
+      border:none;border-radius:10px;padding:10px 14px;cursor:pointer;
+      background:#0b57d0;color:white;font-weight:bold;
+    }
+
+    .muted{color:#888;}
+
+    @media(max-width:900px){
+      .sidebar{display:none;}
+      .main{margin-left:0;width:100%;}
+      .cards{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-box"></div>
+      Finance
+    </div>
+
+    <ul class="menu">
+      <li onclick="window.location.href='/branch-manager/dashboard'">
+         Dashboard
+      </li>
+
+      <li onclick="window.location.href='/employee-manager/operation'">
+        46e3fd4bc Employees
+      </li>
+
+      <li onclick="window.location.href='/account-manager/operation'">
+        3e6 Accounts
+      </li>
+
+      <li onclick="window.location.href='/branch-manager-card-requests'" class="active">
+        <i class="fa-solid fa-credit-card"></i> Card Requests
+      </li>
+
+      <li>
+        4c8 Analytics
+      </li>
+
+      <li>
+        4c4 Reports
+      </li>
+
+      <li onclick="logout()">
+        6aa Logout
+      </li>
+    </ul>
+  </div>
+
+  <div class="main">
+
+    <div class="topbar">
+      <h1>Card Requests</h1>
+      <button class="logout" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h4>Total</h4>
+        <h2 id="totalCount">0</h2>
+      </div>
+      <div class="card">
+        <h4>Approved</h4>
+        <h2 id="approvedCount">0</h2>
+      </div>
+      <div class="card">
+        <h4>Rejected</h4>
+        <h2 id="rejectedCount">0</h2>
+      </div>
+    </div>
+
+    <div class="table-box">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Card</th>
+            <th>Delivery</th>
+            <th>Status</th>
+            <th>Documents</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="reqBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    async function loadRequests(){
+      const token = localStorage.getItem('access_token');
+      if(!token){
+        alert('Login required');
+        window.location.href = '/login';
+        return;
+      }
+
+      const res = await fetch('http://127.0.0.1:8000/branch-manager/card-requests/dashboard', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      const data = await res.json();
+
+      if(!res.ok || !data.success){
+        alert(data.detail || data.message || 'Failed to load requests');
+        return;
+      }
+
+      document.getElementById('totalCount').innerText = data.cards_summary.total || 0;
+      document.getElementById('approvedCount').innerText = data.cards_summary.approved || 0;
+      document.getElementById('rejectedCount').innerText = data.cards_summary.rejected || 0;
+
+      const body = document.getElementById('reqBody');
+      body.innerHTML = '';
+
+      (data.requests || []).forEach(r => {
+        body.innerHTML += `
+          <tr>
+            <td>${r.request_id}</td>
+            <td>
+              <div>${r.full_name || ''}</div>
+              <div class="muted">Acct: ${r.account_number || ''}</div>
+            </td>
+            <td>
+              <div>${r.card_type || ''} (${r.card_variant || ''})</div>
+              <div class="muted">${r.network || ''}</div>
+              <div class="muted">Credit: ${r.credit_limit || ''}</div>
+            </td>
+            <td>
+              <div>${r.address || ''}</div>
+              <div class="muted">${r.city || ''} - ${r.pincode || ''}</div>
+            </td>
+            <td>
+              <div><b>Status:</b> ${r.status || ''}</div>
+              <div><b>Emp:</b> ${r.employee_status || ''}</div>
+              <div><b>Mgr:</b> ${r.manager_status || ''}</div>
+              <div><b>Admin:</b> ${r.admin_status || ''}</div>
+            </td>
+            <td>
+              <div>Aadhaar: ${r.aadhaar_document || '-'}</div>
+              <div>PAN: ${r.pan_document || '-'}</div>
+              <div>Income: ${r.income_proof || '-'}</div>
+              <div>Photo: ${r.photo || '-'}</div>
+
+              ${r.photo && r.photo !== '-' ? `
+                <div style="margin-top:8px;">
+                  <div style="font-weight:bold;color:#0b2c6f;margin-bottom:6px;">Photo</div>
+                  <img src="/static/images/${r.photo}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #eee;" />
+                </div>
+              ` : ''}
+
+              ${r.aadhaar_document && r.aadhaar_document !== '-' ? `
+                <div style="margin-top:8px;">
+                  <div style="font-weight:bold;color:#0b2c6f;margin-bottom:6px;">Aadhaar</div>
+                  <img src="/static/images/${r.aadhaar_document}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #eee;" />
+                </div>
+              ` : ''}
+
+              ${r.pan_document && r.pan_document !== '-' ? `
+                <div style="margin-top:8px;">
+                  <div style="font-weight:bold;color:#0b2c6f;margin-bottom:6px;">PAN</div>
+                  <img src="/static/images/${r.pan_document}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #eee;" />
+                </div>
+              ` : ''}
+
+              ${r.income_proof && r.income_proof !== '-' ? `
+                <div style="margin-top:8px;">
+                  <div style="font-weight:bold;color:#0b2c6f;margin-bottom:6px;">Income</div>
+                  <img src="/static/images/${r.income_proof}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #eee;" />
+                </div>
+              ` : ''}
+            </td>
+
+            <td>
+              ${r.status === 'pending_manager' && (r.manager_status || '').toLowerCase() !== 'forwarded'
+                ? `<button class="btn" onclick="forwardToAdmin(${r.request_id})">Give to Admin</button>`
+                : `<span class="muted">N/A</span>`}
+            </td>
+
+          </tr>
+        `;
+      });
+    }
+
+    async function forwardToAdmin(id){
+      const token = localStorage.getItem('access_token');
+      if(!token){
+        alert('Login required');
+        window.location.href = '/login';
+        return;
+      }
+
+      const confirmMsg = confirm('This will forward the request to Admin. Continue?');
+      if(!confirmMsg) return;
+
+      const res = await fetch(`http://127.0.0.1:8000/branch-manager/card-requests/forward/${id}`, {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      const data = await res.json();
+      if(!res.ok){
+        alert(data.detail || data.message || 'Forward failed');
+        return;
+      }
+
+      alert('Forwarded to Admin');
+      await loadRequests();
+    }
+
+    function logout(){
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.href = '/login';
+    }
+
+    window.onload = loadRequests;
+  </script>
+
+</body>
+</html>
+

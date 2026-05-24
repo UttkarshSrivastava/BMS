@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transfer Employee | SBI Admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin:0;
+    font-family:Poppins;
+    background:#f5f6f7;
+}
+
+.sidebar {
+    width:240px;
+    height:100vh;
+    background:#2C3E50;
+    position:fixed;
+    color:white;
+}
+
+.sidebar a {
+    display:block;
+    padding:14px;
+    color:white;
+    text-decoration:none;
+}
+
+.sidebar a:hover {
+    background:#4A637C;
+}
+
+.main-content {
+    margin-left:240px;
+    padding:40px;
+}
+
+.form-box {
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    max-width:600px;
+}
+
+input, select {
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+}
+
+button {
+    padding:10px 20px;
+    background:#003366;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+button:hover {
+    background:#00509e;
+}
+
+#msg {
+    margin-bottom:15px;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <a href="/employees/dashboard">Dashboard</a>
+    <a href="NE.html">Add Employee</a>
+    <a href="transfer_employee.html">Transfer Employee</a>
+</div>
+
+<div class="main-content">
+
+<h2>Transfer Employee</h2>
+
+<div class="form-box">
+
+<div id="msg"></div>
+
+<label>Employee</label>
+<select id="employeeSelect"></select>
+
+<label>Current Branch</label>
+<input id="currentBranch" readonly>
+
+<label>New Branch</label>
+<select id="branchSelect"></select>
+
+<br><br>
+
+<button onclick="transferEmployee()">
+    Transfer Employee
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const API = "http://127.0.0.1:8000";
+
+let employees = [];
+let branches = [];
+
+
+/* =====================================================
+   LOAD EMPLOYEES
+===================================================== */
+async function loadEmployees() {
+
+    try {
+
+        const res = await fetch(
+            API + "/employee/get-employees"
+        );
+
+        employees = await res.json();
+
+        const sel = document.getElementById("employeeSelect");
+
+        sel.innerHTML = `
+            <option value="">
+                Select Employee
+            </option>
+        `;
+
+        employees.forEach(e => {
+
+            sel.innerHTML += `
+                <option value="${e.id}">
+                    ${e.first_name} ${e.last_name}
+                </option>
+            `;
+        });
+
+    } catch(err) {
+
+        console.log(err);
+
+    }
+}
+
+
+/* =====================================================
+   LOAD BRANCHES
+===================================================== */
+async function loadBranches() {
+
+    try {
+
+        const res = await fetch(
+            API + "/branch/all"
+        );
+
+        branches = await res.json();
+
+        const sel = document.getElementById("branchSelect");
+
+        sel.innerHTML = `
+            <option value="">
+                Select Branch
+            </option>
+        `;
+
+        branches.forEach(b => {
+
+            sel.innerHTML += `
+                <option value="${b.branch_id}">
+                    ${b.branch_name}
+                </option>
+            `;
+        });
+
+    } catch(err) {
+
+        console.log(err);
+
+    }
+}
+
+
+/* =====================================================
+   SHOW CURRENT BRANCH
+===================================================== */
+document.getElementById("employeeSelect")
+.addEventListener("change", function(e){
+
+    const emp = employees.find(
+        x => x.id == e.target.value
+    );
+
+    document.getElementById("currentBranch").value =
+        emp ? emp.branch_id : "";
+
+});
+
+
+/* =====================================================
+   TRANSFER EMPLOYEE
+===================================================== */
+async function transferEmployee() {
+
+    const empId =
+        document.getElementById("employeeSelect").value;
+
+    const newBranch =
+        document.getElementById("branchSelect").value;
+
+    if (!empId || !newBranch) {
+
+        document.getElementById("msg").innerHTML =
+            "<span style='color:red'>Please select employee and branch</span>";
+
+        return;
+    }
+
+    try {
+
+        const res = await fetch(
+            API + "/employee/transfer-employee",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    employee_id: empId,
+                    new_branch_id: newBranch
+                })
+            }
+        );
+
+        const data = await res.json();
+
+        if (data.success) {
+
+            document.getElementById("msg").innerHTML =
+                "<span style='color:green'>Employee transferred successfully</span>";
+
+            loadEmployees();
+
+        } else {
+
+            document.getElementById("msg").innerHTML =
+                "<span style='color:red'>" + data.message + "</span>";
+        }
+
+    } catch(err) {
+
+        console.log(err);
+
+        document.getElementById("msg").innerHTML =
+            "<span style='color:red'>Transfer failed</span>";
+    }
+}
+
+
+/* =====================================================
+   INITIAL LOAD
+===================================================== */
+loadEmployees();
+loadBranches();
+
+</script>
+
+</body>
+</html>

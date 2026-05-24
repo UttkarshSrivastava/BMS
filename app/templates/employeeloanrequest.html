@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bank Employee Portal</title>
+
+  <style>
+    body { font-family: Arial; margin:0; background:#f4f6f8; }
+
+    .header {
+      background:#1f4e79;
+      color:white;
+      padding:15px;
+      text-align:center;
+    }
+
+    .nav {
+      background:#2d6ca2;
+      padding:10px;
+      text-align:center;
+    }
+
+    .nav button {
+      margin:5px;
+      padding:10px;
+      cursor:pointer;
+      border:none;
+      color:white;
+      background:#444;
+    }
+
+    .section { display:none; padding:20px; }
+
+    table {
+      width:100%;
+      border-collapse:collapse;
+      background:white;
+    }
+
+    th, td {
+      border:1px solid #ddd;
+      padding:10px;
+      text-align:center;
+    }
+
+    th { background:#2d6ca2; color:white; }
+
+    input {
+      padding:8px;
+      margin:5px;
+    }
+
+    .login-box {
+      width:300px;
+      margin:100px auto;
+      padding:20px;
+      background:white;
+      text-align:center;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="header">
+  <h2>Bank Employee System</h2>
+</div>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginSection" class="login-box">
+  <h3>Login</h3>
+
+  <input id="username" placeholder="Username"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+<div id="appSection" style="display:none;">
+
+  <div class="nav">
+    <button onclick="showSection('dashboard')">Dashboard</button>
+    <button onclick="showSection('loans')">Loans</button>
+    <button onclick="showSection('accounts')">Accounts</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="section">
+    <h3>Welcome Employee</h3>
+    <p>Branch ID: <span id="branchInfo"></span></p>
+  </div>
+
+  <!-- LOANS -->
+  <div id="loans" class="section">
+    <h3>Loan Requests</h3>
+
+    <button onclick="loadLoans()">Refresh</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Amount</th>
+          <th>Duration</th>
+          <th>EMI</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody id="loanTable"></tbody>
+    </table>
+  </div>
+
+  <!-- ACCOUNTS -->
+  <div id="accounts" class="section">
+    <h3>Accounts</h3>
+    <button onclick="loadAccounts()">Load Accounts</button>
+    <pre id="accData"></pre>
+  </div>
+
+</div>
+
+<script>
+
+// ================= TOKEN HELPERS =================
+function getToken() {
+  return localStorage.getItem("token");
+}
+
+// ================= LOGIN =================
+async function login() {
+
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  const res = await fetch("http://127.0.0.1:8000/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
+
+  const data = await res.json();
+
+  if (data.access_token) {
+
+    // ✅ SAVE SESSION
+    localStorage.setItem("token", data.access_token);
+    localStorage.setItem("branch_id", data.branch_id);
+
+    // SWITCH UI
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("appSection").style.display = "block";
+
+    document.getElementById("branchInfo").innerText = data.branch_id;
+
+    showSection("dashboard");
+
+  } else {
+    alert("Login failed");
+  }
+}
+
+// ================= SECTION SWITCH =================
+function showSection(id) {
+
+  document.querySelectorAll(".section").forEach(s => {
+    s.style.display = "none";
+  });
+
+  document.getElementById(id).style.display = "block";
+
+  if (id === "loans") loadLoans();
+}
+
+// ================= LOANS =================
+async function loadLoans() {
+
+  const token = getToken();
+
+  if (!token) {
+    alert("Session expired");
+    location.reload();
+    return;
+  }
+
+  const res = await fetch("http://127.0.0.1:8000/employee-loans-request-page/loan-requests", {
+    headers: {
+      "Authorization": "Bearer " + token
+    }
+  });
+
+  if (!res.ok) {
+    alert("Unauthorized");
+    return;
+  }
+
+  const data = await res.json();
+
+  const table = document.getElementById("loanTable");
+  table.innerHTML = "";
+
+  data.loans.forEach(l => {
+    table.innerHTML += `
+      <tr>
+        <td>${l.id}</td>
+        <td>${l.user_name}</td>
+        <td>${l.amount}</td>
+        <td>${l.duration}</td>
+        <td>${l.emi}</td>
+        <td>${l.status}</td>
+      </tr>
+    `;
+  });
+}
+
+// ================= ACCOUNTS =================
+async function loadAccounts() {
+
+  const token = getToken();
+
+  const res = await fetch("http://127.0.0.1:8000/employee-accounts", {
+    headers: {
+      "Authorization": "Bearer " + token
+    }
+  });
+
+  const data = await res.json();
+
+  document.getElementById("accData").innerText =
+    JSON.stringify(data, null, 2);
+}
+
+// ================= LOGOUT =================
+function logout() {
+  localStorage.clear();
+  location.reload();
+}
+
+// ================= AUTO CHECK =================
+window.onload = function () {
+
+  if (getToken()) {
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("appSection").style.display = "block";
+    showSection("dashboard");
+  }
+};
+
+</script>
+
+</body>
+</html>

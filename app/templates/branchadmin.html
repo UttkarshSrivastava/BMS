@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bank Admin Panel</title>
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            width: 220px;
+            height: 100%;
+            background-color: #003366;
+            padding-top: 20px;
+            color: white;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .sidebar a:hover {
+            background-color: #0055aa;
+        }
+
+       
+        .main {
+            margin-left: 220px;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: white;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .header h3 {
+            margin: 0;
+        }
+
+      
+        .branch-search {
+            display: none; /* initially hidden */
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 0 auto 30px auto;
+            text-align: center;
+        }
+
+        .branch-search label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #003366;
+        }
+
+        .branch-search input[type="text"] {
+            width: 80%;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .branch-search button {
+            padding: 8px 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .branch-search button:hover {
+            background-color: #0056b3;
+        }
+
+       
+        .cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card {
+            background: white;
+            width: 220px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .card h4 {
+            margin: 0 0 10px;
+            color: #003366;
+        }
+
+        .card p {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+    </style>
+</head>
+
+<body>
+
+   
+    <div class="sidebar">
+        <h2>Bank Admin</h2>
+        <a href="#">Dashboard</a>
+        <a href="#">Manage Branch</a>
+        <a href="branch_manager_dashboard.html">Branch Dashboard</a>
+        <a href="credithistory.html">Credit History</a>
+        <a href="debithistory.html">Debit History</a>
+        <a id="manageAccount">Manage Account</a>
+        <a href="Login.html">Logout</a>
+    </div>
+
+
+   
+    <div class="main">
+
+        <div class="header">
+            <h3>Admin Dashboard</h3>
+            <div id="welcomeUser">Welcome</div>
+        </div>
+
+        
+        <div class="branch-search" id="branchSearch">
+            <form action="showaccount" method="get">
+                <label for="branchId">Enter Branch ID</label>
+                <input type="text" id="branchId" name="branchId" placeholder="Branch ID">
+                <br>
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        
+        <script>
+   
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get("name");
+
+    if(name){
+        document.getElementById("welcomeUser").innerText = "Welcome, " + name;
+    }
+
+    const manageAccount = document.getElementById("manageAccount");
+    const branchSearch = document.getElementById("branchSearch");
+
+    manageAccount.addEventListener("click", () => {
+        if(branchSearch.style.display === "block"){
+            branchSearch.style.display = "none"; 
+        } else {
+            branchSearch.style.display = "block"; 
+            branchSearch.scrollIntoView({behavior: "smooth"}); 
+        }
+    });
+
+
+    const branchId = params.get("branchId");
+    if(branchId){
+        alert("Searching for Branch ID: " + branchId);
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Dashboard | SBI Admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+:root {
+    --primary-dark: #2C3E50;
+    --primary-red: #A52121;
+    --sidebar-hover-bg: #4A637C;
+    --gold-accent: #FFC300;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #f5f6f7;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background: var(--primary-dark);
+    color: #fff;
+    padding-top: 25px;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.sidebar-menu a {
+    display: block;
+    padding: 14px 22px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #fff;
+    transition: 0.3s;
+}
+
+.sidebar-menu a i {
+    margin-right: 12px;
+}
+
+.sidebar-menu a:hover {
+    background: var(--sidebar-hover-bg);
+    transform: translateX(6px);
+}
+
+.sidebar-menu a.active {
+    background: var(--primary-red);
+    font-weight: 700;
+    border-left: 5px solid var(--gold-accent);
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 240px;
+    padding: 40px;
+}
+
+h1 {
+    color: #2C3E50;
+}
+
+/* Table Styles */
+.table-container {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-top: 20px;
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-container th, .table-container td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.table-container th {
+    background: #2C3E50;
+    color: white;
+    font-weight: 600;
+}
+
+.table-container tr:hover {
+    background: #f8f9fa;
+}
+
+.employee-id {
+    background: #A52121;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.no-employees {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+.success-msg {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.error-msg {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-menu">
+        <a href="showemploye.html" class="active"><i class="fas fa-tachometer-alt"></i> Employee Dashboard</a>
+        <a href="NE.html"><i class="fas fa-user-plus"></i> Add New Employee</a>
+        <a href="transfer_employee.html"><i class="fas fa-exchange-alt"></i> Transfer Employee</a>
+    </div>
+</div>
+
+<div class="main-content">
+    <h1><i class="fas fa-users"></i> Employee Dashboard</h1>
+    
+    <div id="successMessage" class="success-msg"></div>
+    <div id="errorMessage" class="error-msg"></div>
+    
+    <div class="table-container">
+        <h3>All Employees</h3>
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Loading employees...
+        </div>
+        <div id="noEmployees" class="no-employees" style="display:none;">
+            <i class="fas fa-inbox" style="font-size:48px; color:#ddd;"></i>
+            <p style="margin-top:15px;">No employees found. <a href="NE.html">Add a new employee</a> to get started!</p>
+        </div>
+        <div id="employeesTable" style="display:none; overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Department</th>
+                        <th>Branch</th>
+                        <th>Salary</th>
+                        <th>Joined</th>
+                    </tr>
+                </thead>
+                <tbody id="employeesTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show success/error messages from URL params
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('success')){
+        document.getElementById('successMessage').textContent = params.get('success');
+        document.getElementById('successMessage').style.display = 'block';
+    }
+    if(params.get('error')){
+        document.getElementById('errorMessage').textContent = params.get('error');
+        document.getElementById('errorMessage').style.display = 'block';
+    }
+
+    async function loadEmployees() {
+        try {
+            const response = await fetch('/get-all-employees');
+            const data = await response.json();
+            
+            if (data.employees && data.employees.length > 0) {
+                const tbody = document.getElementById('employeesTableBody');
+                tbody.innerHTML = '';
+                
+                data.employees.forEach(emp => {
+                    const row = `
+                        <tr>
+                            <td><span class="employee-id">${emp.employee_id}</span></td>
+                            <td>${emp.first_name} ${emp.last_name}</td>
+                            <td>${emp.email}</td>
+                            <td>${emp.phone}</td>
+                            <td>${emp.department}</td>
+                            <td>${emp.branch_name} <small style="color:#888">(${emp.branch_id})</small></td>
+                            <td>Rs. ${emp.salary.toLocaleString()}</td>
+                            <td>${emp.created_date || '-'}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+                
+                document.getElementById('employeesTable').style.display = 'block';
+                document.getElementById('noEmployees').style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
+            } else {
+                document.getElementById('employeesTable').style.display = 'none';
+                document.getElementById('noEmployees').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+            }
+        } catch (error) {
+            document.getElementById('loading').innerHTML = '<p style="color:red">Error loading employees</p>';
+        }
+    }
+    
+    loadEmployees();
+</script>
+
+</body>
+</html>
+

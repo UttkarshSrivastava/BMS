@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account | SBI Careers</title>
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Segoe UI',sans-serif;
+    }
+
+    body,html{
+      height:100%;
+      width:100%;
+      background:#fff;
+    }
+
+    /* ================= HEADER ================= */
+
+    .sbi-header{
+      width:100%;
+      background:#fff;
+      box-shadow:0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .career-bar{
+      background:#4B0082;
+      color:#fff;
+      font-weight:600;
+      padding:12px 40px;
+      letter-spacing:1px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .contact-btn{
+      background:#FFD600;
+      color:#000;
+      border:none;
+      padding:10px 18px;
+      border-radius:5px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:.3s;
+    }
+
+    .contact-btn:hover{
+      background:#ffea00;
+    }
+
+    .sbi-navbar{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:14px 40px;
+      border-top:1px solid #eee;
+      border-bottom:1px solid #eee;
+      background:#fff;
+    }
+
+    .nav-links{
+      display:flex;
+      list-style:none;
+      gap:40px;
+    }
+
+    .nav-links li{
+      position:relative;
+    }
+
+    .nav-links li a{
+      text-decoration:none;
+      color:#000;
+      font-weight:500;
+      font-size:1rem;
+      transition:.3s;
+      padding-bottom:5px;
+    }
+
+    .nav-links li a::after{
+      content:'';
+      position:absolute;
+      left:0;
+      bottom:0;
+      width:0%;
+      height:2px;
+      background:#0b3c8a;
+      transition:.3s;
+    }
+
+    .nav-links li a:hover{
+      color:#0b3c8a;
+    }
+
+    .nav-links li a:hover::after{
+      width:100%;
+    }
+
+    /* ================= BODY ================= */
+
+    .container{
+      width:100%;
+      min-height:calc(100vh - 120px);
+      display:flex;
+    }
+
+    .left-panel{
+      flex:1;
+      background:linear-gradient(135deg,#00c853,#009624);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      flex-direction:column;
+      color:#fff;
+      padding:50px;
+      text-align:center;
+    }
+
+    .left-panel h1{
+      font-size:3rem;
+      margin-bottom:20px;
+    }
+
+    .left-panel p{
+      font-size:1.1rem;
+      max-width:350px;
+      line-height:1.6;
+      margin-bottom:30px;
+    }
+
+    .login-btn{
+      background:#fff;
+      color:#009624;
+      text-decoration:none;
+      padding:14px 30px;
+      border-radius:8px;
+      font-weight:bold;
+      transition:.3s;
+    }
+
+    .login-btn:hover{
+      background:#e8f5e9;
+      transform:translateY(-2px);
+    }
+
+    .right-panel{
+      flex:1;
+      background:#fff;
+      display:flex;
+      justify-content:center;
+      flex-direction:column;
+      padding:60px;
+    }
+
+    .right-panel h2{
+      font-size:2.4rem;
+      color:#0b3c8a;
+      margin-bottom:30px;
+    }
+
+    form{
+      width:100%;
+    }
+
+    .input-field{
+      position:relative;
+      margin-bottom:20px;
+    }
+
+    .input-field i{
+      position:absolute;
+      top:50%;
+      left:15px;
+      transform:translateY(-50%);
+      color:#0b3c8a;
+    }
+
+    .input-field input{
+      width:100%;
+      padding:14px 14px 14px 45px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      font-size:1rem;
+      transition:.3s;
+    }
+
+    .input-field input:focus{
+      outline:none;
+      border-color:#0b3c8a;
+      box-shadow:0 0 0 3px rgba(11,60,138,0.1);
+    }
+
+    .terms{
+      font-size:.95rem;
+      margin-bottom:25px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .signup-btn{
+      width:100%;
+      background:linear-gradient(135deg,#0b3c8a,#07285c);
+      color:#fff;
+      border:none;
+      padding:15px;
+      border-radius:10px;
+      font-size:1rem;
+      font-weight:bold;
+      cursor:pointer;
+      transition:.3s;
+    }
+
+    .signup-btn:hover{
+      transform:translateY(-2px);
+      opacity:.95;
+    }
+
+    @media(max-width:900px){
+
+      .container{
+        flex-direction:column;
+      }
+
+      .left-panel,
+      .right-panel{
+        width:100%;
+      }
+
+      .left-panel{
+        padding:40px 25px;
+      }
+
+      .right-panel{
+        padding:40px 25px;
+      }
+
+      .nav-links{
+        gap:20px;
+        flex-wrap:wrap;
+        justify-content:center;
+      }
+
+      .career-bar{
+        flex-direction:column;
+        gap:10px;
+        align-items:flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ================= HEADER ================= -->
+
+  <header class="sbi-header">
+
+    <div class="career-bar">
+      <span>CAREERS</span>
+
+      <button class="contact-btn">
+        CONTACT US
+      </button>
+    </div>
+
+    <nav class="sbi-navbar">
+      <ul class="nav-links">
+
+        <li>
+          <a href="/">HOME</a>
+        </li>
+
+        <li>
+          <a href="#">JOIN SBI</a>
+        </li>
+
+        <li>
+          <a href="/">LOGIN</a>
+        </li>
+
+      </ul>
+    </nav>
+
+  </header>
+
+  <!-- ================= MAIN BODY ================= -->
+
+  <div class="container">
+
+    <!-- LEFT PANEL -->
+
+    <div class="left-panel">
+
+      <h1>Welcome!</h1>
+
+      <p>
+        If you already have an account with us let's sign in
+        to see something awesome!
+      </p>
+
+      <a href="/" class="login-btn">
+        Use your existing account
+      </a>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+
+    <div class="right-panel">
+
+      <h2>Create Account</h2>
+
+      <!-- FASTAPI FORM -->
+
+      <form action="/signup" method="post">
+
+        <!-- USERNAME -->
+
+        <div class="input-field">
+          <i class="fas fa-user"></i>
+
+          <input
+            type="text"
+            name="name"
+            placeholder="Username"
+            required
+          />
+        </div>
+
+        <!-- PASSWORD -->
+
+        <div class="input-field">
+          <i class="fas fa-lock"></i>
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Create Password"
+            required
+          />
+        </div>
+
+        <!-- EMAIL -->
+
+        <div class="input-field">
+          <i class="fas fa-envelope"></i>
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            required
+          />
+        </div>
+
+        <!-- CONTACT -->
+
+        <div class="input-field">
+          <i class="fas fa-phone"></i>
+
+          <input
+            type="tel"
+            name="contact"
+            placeholder="Contact Number"
+            required
+          />
+        </div>
+
+        <!-- TERMS -->
+
+        <label class="terms">
+          <input type="checkbox" required />
+
+          I agree to Terms of Use & Privacy Policy.
+        </label>
+
+        <!-- SUBMIT -->
+
+        <button type="submit" class="signup-btn">
+          Sign Up
+        </button>
+
+      </form>
+
+    </div>
+  </div>
+
+</body>
+</html>

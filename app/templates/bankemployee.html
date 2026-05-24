@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Branch Employee Dashboard</title>
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial, Helvetica, sans-serif;
+    }
+
+    body{
+      background:#f4f7fb;
+      display:flex;
+    }
+
+    .sidebar{
+      width:260px;
+      height:100vh;
+      background:linear-gradient(to bottom,#1fd1a5,#1e63c5);
+      color:white;
+      position:fixed;
+      padding:20px;
+    }
+
+    .logo{
+      font-size:28px;
+      font-weight:bold;
+      margin-bottom:40px;
+    }
+
+    .menu{
+      list-style:none;
+    }
+
+    .menu li{
+      padding:15px;
+      margin-bottom:10px;
+      border-radius:10px;
+      cursor:pointer;
+    }
+
+    .menu li:hover,
+    .menu .active{
+      background:#1e63c5;
+    }
+
+    .menu i{
+      margin-right:10px;
+    }
+
+    .main{
+      margin-left:260px;
+      width:calc(100% - 260px);
+      padding:25px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:25px;
+    }
+
+    .profile{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:bold;
+    }
+
+    .profile img{
+      width:45px;
+      height:45px;
+      border-radius:50%;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:20px;
+      margin-bottom:25px;
+    }
+
+    .card{
+      background:white;
+      border-radius:15px;
+      padding:25px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .chart-box{
+      background:white;
+      border-radius:15px;
+      padding:20px;
+      margin-bottom:25px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.05);
+      height:300px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:15px;
+    }
+
+    table th{
+      background:#f3f4f6;
+      padding:15px;
+      text-align:left;
+    }
+
+    table td{
+      padding:15px;
+      border-bottom:1px solid #eee;
+    }
+
+    .deposit{ color:green; font-weight:bold; }
+    .withdraw{ color:red; font-weight:bold; }
+
+    .success{
+      background:#dcfce7;
+      color:green;
+      padding:6px 10px;
+      border-radius:20px;
+      font-size:13px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">
+    <i class="fa-solid fa-building-columns"></i>
+    NBANKING
+  </div>
+
+  <ul class="menu">
+    <li class="active"><i class="fa-solid fa-table-columns"></i> Dashboard</li>
+
+    <!-- Accounts -->
+  <li>
+  <a href="/branch-employee/accounts"
+     style="color:white;text-decoration:none;">
+     <i class="fa-solid fa-user"></i> Accounts
+  </a>
+</li>
+  <li>
+  <a href="/branch-open-account-request/dashboard"
+     style="color:white;text-decoration:none;">
+     <i class="fa-solid fa-user"></i> Accounts Request
+  </a>
+</li>
+
+ <li>
+  <a href="/branch-employee-card-requests"
+     style="color:white;text-decoration:none;">
+     <i class="fa-solid fa-credit-card"></i> Card Requests
+  </a>
+</li>
+
+ 
+<li>
+  <a href="/"
+     style="color:white;text-decoration:none;">
+     <i class="fa-solid fa-user"></i> Logout
+  </a>
+</li>
+  </ul>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="topbar">
+    <div>
+      <h1 id="employeeName">Welcome, Employee</h1>
+      <p id="branchName">Branch Employee</p>
+    </div>
+
+    <div class="profile">
+      <img src="https://i.pravatar.cc/100" alt="">
+      <span id="profileName">Employee</span>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="cards">
+    <div class="card">
+      <h4>Branch Balance</h4>
+      <h2 id="branchBalance">₹0</h2>
+    </div>
+
+    <div class="card">
+      <h4>Active Accounts</h4>
+      <h2 id="activeAccounts">0</h2>
+    </div>
+
+    <div class="card">
+      <h4>Total Accounts</h4>
+      <h2 id="totalAccounts">0</h2>
+    </div>
+
+    <div class="card">
+      <h4>Transactions</h4>
+      <h2 id="monthlyTransactions">₹0</h2>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-box">
+    <h2>Daily Transaction Overview</h2>
+    <canvas id="transactionChart"></canvas>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-box">
+    <h2>Recent Transactions</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Account Number</th>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody id="transactionTable"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+
+let chartInstance = null;
+
+/* =========================
+   ✅ ADDED FIX (MAIN PART)
+   ========================= */
+
+
+/* =========================
+   EXISTING CODE (UNCHANGED)
+   ========================= */
+
+async function loadDashboard() {
+
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    alert("Login required");
+    window.location.href = "/Login.html";
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/employee-dashboard/dashboard",
+      {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    document.getElementById("employeeName").innerText =
+      "Welcome, " + (data.employee_name || "Employee");
+
+    document.getElementById("profileName").innerText =
+      data.employee_name || "Employee";
+
+    document.getElementById("branchName").innerText =
+      `Branch: ${data.branch_name || "N/A"} | Branch ID: ${data.branch_id || "N/A"}`;
+
+    document.getElementById("branchBalance").innerText =
+      "₹ " + Number(data.branch_balance || 0).toLocaleString();
+
+    document.getElementById("activeAccounts").innerText =
+      data.active_accounts || 0;
+
+    document.getElementById("totalAccounts").innerText =
+      data.total_accounts || 0;
+
+    document.getElementById("monthlyTransactions").innerText =
+      data.transaction_count || 0;
+
+    const table = document.getElementById("transactionTable");
+    table.innerHTML = "";
+
+    (data.recent_transactions || []).forEach(txn => {
+
+      const txnType = (txn.type || "").toUpperCase();
+
+      const txnClass =
+        txnType === "CREDIT" || txnType === "DEPOSIT"
+          ? "deposit"
+          : "withdraw";
+
+      table.innerHTML += `
+        <tr>
+          <td>${txn.transaction_id || "N/A"}</td>
+          <td>${txn.account_number || "N/A"}</td>
+          <td class="${txnClass}">${txn.type || "N/A"}</td>
+          <td>₹ ${Number(txn.amount || 0).toLocaleString()}</td>
+          <td>${txn.date || "N/A"}</td>
+          <td><span class="success">${txn.status || "Success"}</span></td>
+        </tr>
+      `;
+    });
+
+    const ctx = document.getElementById("transactionChart").getContext("2d");
+
+    if (chartInstance) chartInstance.destroy();
+
+    chartInstance = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data.chart?.labels || [],
+        datasets: [
+          {
+            label: "Daily Credit Count",
+            data: data.chart?.credit || [],
+            backgroundColor: "green",
+            borderRadius: 8
+          },
+          {
+            label: "Daily Debit Count",
+            data: data.chart?.debit || [],
+            backgroundColor: "red",
+            borderRadius: 8
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0 } }
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to load dashboard");
+  }
+}
+
+window.onload = loadDashboard;
+
+</script>
+</body>
+</html>

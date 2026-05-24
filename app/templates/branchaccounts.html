@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0" />
+
+  <title>Branch Employee Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet">
+
+  <style>
+
+    body{
+      font-family:'Poppins',sans-serif;
+      background:#f5f7fb;
+      padding-top:75px;
+    }
+
+    .top-navbar-red{
+      background:#C62828;
+      height:65px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 20px;
+      color:#fff;
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      z-index:1000;
+    }
+
+    .card-section{
+      background:#fff;
+      border-radius:14px;
+      padding:20px;
+      box-shadow:0 4px 18px rgba(0,0,0,0.05);
+    }
+
+    .btn-sbi{
+      background:#C62828;
+      color:#fff;
+      border:none;
+      padding:10px 16px;
+      border-radius:8px;
+      font-weight:600;
+    }
+
+    .btn-sbi:hover{
+      background:#b71c1c;
+      color:#fff;
+    }
+
+    .table th{
+      background:#f2f4f7;
+    }
+
+    .muted-small{
+      font-size:12px;
+      color:#6c757d;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:12px;
+    }
+
+    .col-12-grid{
+      grid-column:span 12;
+    }
+
+    .col-8-grid{
+      grid-column:span 8;
+    }
+
+    .col-6-grid{
+      grid-column:span 6;
+    }
+
+    .col-4-grid{
+      grid-column:span 4;
+    }
+
+    .col-2-grid{
+      grid-column:span 2;
+    }
+
+    @media(max-width:992px){
+
+      .col-12-grid,
+      .col-8-grid,
+      .col-6-grid,
+      .col-4-grid,
+      .col-2-grid{
+        grid-column:span 12;
+      }
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="top-navbar-red">
+
+    <h5 class="m-0">
+      Branch Employee Dashboard
+    </h5>
+
+    <button class="btn btn-light btn-sm"
+      onclick="logout()">
+
+      Logout
+
+    </button>
+
+  </div>
+
+  <div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+      <h3 class="m-0">
+        Accounts Dashboard
+      </h3>
+
+      <div id="apiStatus"
+        class="muted-small">
+
+        API : Ready
+
+      </div>
+
+    </div>
+
+    <!-- TABS -->
+
+    <ul class="nav nav-tabs">
+
+      <li class="nav-item">
+
+        <button class="nav-link active"
+          data-bs-toggle="tab"
+          data-bs-target="#tabOpen">
+
+          Open Account
+
+        </button>
+
+      </li>
+
+      <li class="nav-item">
+
+        <button class="nav-link"
+          data-bs-toggle="tab"
+          data-bs-target="#tabView">
+
+          View / Edit
+
+        </button>
+
+      </li>
+
+      <li class="nav-item">
+
+        <button class="nav-link"
+          data-bs-toggle="tab"
+          data-bs-target="#tabTransactions">
+
+          Transactions
+
+        </button>
+
+      </li>
+
+      <li class="nav-item">
+
+        <button class="nav-link"
+          data-bs-toggle="tab"
+          
+
+          History
+
+        </button>
+
+      </li>
+
+      <li class="nav-item">
+
+        <button class="nav-link"
+          data-bs-toggle="tab"
+          
+
+          Freeze / Close
+
+        </button>
+
+      </li>
+
+    </ul>
+
+    <!-- TAB CONTENT -->
+
+    <div class="tab-content mt-3">
+
+      <!-- OPEN ACCOUNT -->
+
+      <div class="tab-pane fade show active"
+        id="tabOpen">
+
+        <div class="card-section">
+
+          <form id="openAccountForm">
+
+            <div class="form-grid">
+
+              <div class="col-6-grid">
+
+                <input type="text"
+                  class="form-control"
+                  name="customer_name"
+                  placeholder="Customer Name"
+                  required>
+
+              </div>
+
+              <div class="col-6-grid">
+
+                <input type="email"
+                  class="form-control"
+                  name="email"
+                  placeholder="Email"
+                  required>
+
+              </div>
+
+              <div class="col-6-grid">
+
+                <input type="text"
+                  class="form-control"
+                  name="mobile"
+                  placeholder="Mobile"
+                  required>
+
+              </div>
+
+              <div class="col-6-grid">
+
+                <input type="text"
+                  class="form-control"
+                  name="aadhaar"
+                  placeholder="Aadhaar"
+                  required>
+
+              </div>
+
+              <div class="col-6-grid">
+
+                <input type="text"
+                  class="form-control"
+                  name="pan"
+                  placeholder="PAN"
+                  required>
+
+              </div>
+
+              <div class="col-6-grid">
+
+                <input type="text"
+                  class="form-control"
+                  name="address"
+                  placeholder="Address"
+                  required>
+
+              </div>
+
+              <div class="col-4-grid">
+
+                <select class="form-select"
+                  name="account_type">
+
+                  <option value="savings">
+                    Savings
+                  </option>
+
+                  <option value="current">
+                    Current
+                  </option>
+
+                </select>
+
+              </div>
+
+              <div class="col-4-grid">
+
+                <input type="number"
+                  class="form-control"
+                  name="initial_deposit"
+                  placeholder="Initial Deposit"
+                  required>
+
+              </div>
+
+              <div class="col-12-grid">
+
+                <input type="text"
+                  class="form-control"
+                  name="nominee"
+                  placeholder="Nominee">
+
+              </div>
+
+              <div class="col-12-grid">
+
+                <button class="btn-sbi"
+                  type="submit">
+
+                  Open Account
+
+                </button>
+
+              </div>
+
+              <div class="col-12-grid">
+
+                <div id="openMsg"></div>
+
+              </div>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+      <!-- VIEW -->
+
+      <div class="tab-pane fade"
+        id="tabView">
+
+        <div class="card-section">
+
+          <div class="row">
+
+            <div class="col-lg-4">
+
+              <input class="form-control mb-2"
+                id="qAccountNumber"
+                placeholder="Account Number">
+
+              <input class="form-control mb-2"
+                id="qMobile"
+                placeholder="Mobile">
+
+              <input class="form-control mb-2"
+                id="qCustomerName"
+                placeholder="Customer Name">
+
+              <button class="btn-sbi"
+                onclick="searchAccounts()">
+
+                Search
+
+              </button>
+
+            </div>
+
+            <div class="col-lg-8">
+
+              <div class="table-responsive">
+
+                <table class="table table-bordered">
+
+                  <thead>
+
+                    <tr>
+
+                      <th>Account No</th>
+                      <th>Customer</th>
+                      <th>Branch</th>
+                      <th>Type</th>
+                      <th>Balance</th>
+                      <th>Status</th>
+                      <th>Action</th>
+
+                    </tr>
+
+                  </thead>
+
+                  <tbody id="accountsBody"></tbody>
+
+                </table>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TRANSACTIONS -->
+
+      <div class="tab-pane fade"
+        id="tabTransactions">
+
+        <div class="card-section">
+
+          <input type="text"
+            id="txnAccount"
+            class="form-control mb-2"
+            placeholder="Account Number">
+
+          <input type="number"
+            id="txnAmount"
+            class="form-control mb-2"
+            placeholder="Amount">
+
+          <select id="txnType"
+            class="form-select mb-2">
+
+            <option value="deposit">
+              Deposit
+            </option>
+
+            <option value="withdraw">
+              Withdraw
+            </option>
+
+          </select>
+
+          <button class="btn-sbi"
+            onclick="performTransaction()">
+
+            Submit Transaction
+
+          </button>
+
+          <div id="txnMsg" class="mt-3"></div>
+
+        </div>
+
+      </div>
+
+      <!-- HISTORY -->
+
+      <div class="tab-pane fade"
+        id="tabHistory">
+
+        <div class="card-section">
+
+          <input type="text"
+            id="historyAccount"
+            class="form-control mb-3"
+            placeholder="Account Number">
+
+          <button class="btn-sbi"
+            onclick="loadHistory()">
+
+            Load History
+
+          </button>
+
+          <div class="table-responsive mt-4">
+
+            <table class="table table-bordered">
+
+              <thead>
+
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Balance</th>
+                  <th>Date</th>
+                </tr>
+
+              </thead>
+
+              <tbody id="historyBody"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- FREEZE -->
+
+      <div class="tab-pane fade"
+        id="tabFreeze">
+
+        <div class="card-section">
+
+          <input type="text"
+            id="freezeAccount"
+            class="form-control mb-3"
+            placeholder="Account Number">
+
+          <button class="btn btn-warning me-2"
+            onclick="freezeAccount()">
+
+            Freeze
+
+          </button>
+
+          <button class="btn btn-danger me-2"
+            onclick="closeAccount()">
+
+            Close
+
+          </button>
+
+          <button class="btn btn-success"
+            onclick="reopenAccount()">
+
+            Reopen
+
+          </button>
+
+          <div id="freezeMsg" class="mt-3"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- EDIT MODAL -->
+
+  <div class="modal fade"
+    id="editModal">
+
+    <div class="modal-dialog">
+
+      <div class="modal-content">
+
+        <div class="modal-header">
+
+          <h5>Edit Account</h5>
+
+          <button class="btn-close"
+            data-bs-dismiss="modal"></button>
+
+        </div>
+
+        <div class="modal-body">
+
+          <input type="hidden"
+            id="editAccountNumber">
+
+          <input class="form-control mb-2"
+            id="editMobile"
+            placeholder="Mobile">
+
+          <input class="form-control mb-2"
+            id="editEmail"
+            placeholder="Email">
+
+          <input class="form-control mb-2"
+            id="editAddress"
+            placeholder="Address">
+
+          <input class="form-control mb-2"
+            id="editNominee"
+            placeholder="Nominee">
+
+          <select class="form-select mb-2"
+            id="editAccountType">
+
+            <option value="savings">
+              Savings
+            </option>
+
+            <option value="current">
+              Current
+            </option>
+
+          </select>
+
+          <div id="editMsg"></div>
+
+        </div>
+
+        <div class="modal-footer">
+
+          <button class="btn btn-primary"
+            onclick="submitEditAccount()">
+
+            Save Changes
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+
+    const API_BASE = "http://127.0.0.1:8000";
+
+    const token =
+      localStorage.getItem("access_token");
+
+    if(!token){
+
+      alert("Login Required");
+
+      window.location.href = "/login";
+    }
+
+    function authHeaders(){
+
+      return {
+
+        "Content-Type":"application/json",
+
+        "Authorization":`Bearer ${token}`
+      };
+    }
+
+    function setApiStatus(text){
+
+      const el =
+        document.getElementById("apiStatus");
+
+      if(el){
+
+        el.innerText = "API : " + text;
+      }
+    }
+
+    function showMsg(id,type,msg){
+
+      const el =
+        document.getElementById(id);
+
+      el.className =
+        type === "success"
+          ? "alert alert-success mt-3"
+          : "alert alert-danger mt-3";
+
+      el.innerHTML = msg;
+    }
+
+    function logout(){
+
+      localStorage.removeItem("access_token");
+
+      window.location.href = "/login";
+    }
+
+    // OPEN ACCOUNT
+
+    document
+    .getElementById("openAccountForm")
+    .addEventListener("submit",async(e)=>{
+
+      e.preventDefault();
+
+      const payload =
+        Object.fromEntries(
+          new FormData(e.target).entries()
+        );
+
+      const res = await fetch(
+        `${API_BASE}/branch-employee/accounts/create`,
+        {
+          method:"POST",
+          headers: authHeaders(),
+          body: JSON.stringify(payload)
+        }
+      );
+
+      const data = await res.json();
+
+      if(res.ok){
+
+        showMsg(
+          "openMsg",
+          "success",
+          `Account Created : ${data.account_number}`
+        );
+
+        e.target.reset();
+
+        loadAccounts();
+
+      }else{
+
+        showMsg(
+          "openMsg",
+          "danger",
+          data.detail || "Failed"
+        );
+      }
+    });
+
+    // LOAD ACCOUNTS
+
+    async function loadAccounts(){
+
+      const res = await fetch(
+        `${API_BASE}/branch-employee/accounts/employee/all`,
+        {
+          headers: authHeaders()
+        }
+      );
+
+      const data = await res.json();
+
+      const tbody =
+        document.getElementById("accountsBody");
+
+      tbody.innerHTML = "";
+
+      (data.accounts || []).forEach(a=>{
+
+        tbody.innerHTML += `
+          <tr>
+
+            <td>${a.account_number}</td>
+
+            <td>${a.customer_name}</td>
+
+            <td>${a.branch_id}</td>
+
+            <td>${a.account_type}</td>
+
+            <td>₹${Number(a.balance).toFixed(2)}</td>
+
+            <td>${a.status}</td>
+
+            <td>
+
+              <button
+                class="btn btn-sm btn-primary"
+                onclick='openEditModal(${JSON.stringify(a)})'>
+
+                Edit
+
+              </button>
+
+            </td>
+
+          </tr>
+        `;
+      });
+    }
+
+    // SEARCH
+
+    async function searchAccounts(){
+
+      const account_number =
+        document.getElementById("qAccountNumber").value;
+
+      const mobile =
+        document.getElementById("qMobile").value;
+
+      const customer_name =
+        document.getElementById("qCustomerName").value;
+
+      const params =
+        new URLSearchParams();
+
+      if(account_number)
+        params.append("account_number",account_number);
+
+      if(mobile)
+        params.append("mobile",mobile);
+
+      if(customer_name)
+        params.append("customer_name",customer_name);
+
+      const res = await fetch(
+        `${API_BASE}/branch-employee/accounts/employee/search?${params}`,
+        {
+          headers: authHeaders()
+        }
+      );
+
+      const data = await res.json();
+
+      const tbody =
+        document.getElementById("accountsBody");
+
+      tbody.innerHTML = "";
+
+      (data || []).forEach(a=>{
+
+        tbody.innerHTML += `
+          <tr>
+
+            <td>${a.account_number}</td>
+
+            <td>${a.customer_name}</td>
+
+            <td>${a.branch_id}</td>
+
+            <td>${a.account_type}</td>
+
+            <td>₹${Number(a.balance).toFixed(2)}</td>
+
+            <td>${a.status}</td>
+
+            <td>
+
+              <button
+                class="btn btn-sm btn-primary"
+                onclick='openEditModal(${JSON.stringify(a)})'>
+
+                Edit
+
+              </button>
+
+            </td>
+
+          </tr>
+        `;
+      });
+    }
+
+    // EDIT
+
+    function openEditModal(a){
+
+      document.getElementById(
+        "editAccountNumber"
+      ).value = a.account_number;
+
+      document.getElementById(
+        "editMobile"
+      ).value = a.mobile || "";
+
+      document.getElementById(
+        "editEmail"
+      ).value = a.email || "";
+
+      document.getElementById(
+        "editAddress"
+      ).value = a.address || "";
+
+      document.getElementById(
+        "editNominee"
+      ).value = a.nominee || "";
+
+      document.getElementById(
+        "editAccountType"
+      ).value = a.account_type || "";
+
+      new bootstrap.Modal(
+        document.getElementById("editModal")
+      ).show();
+    }
+
+    async function submitEditAccount(){
+
+      const account_number =
+        document.getElementById(
+          "editAccountNumber"
+        ).value;
+
+      const payload = {
+
+        mobile:
+          document.getElementById(
+            "editMobile"
+          ).value,
+
+        email:
+          document.getElementById(
+            "editEmail"
+          ).value,
+
+        address:
+          document.getElementById(
+            "editAddress"
+          ).value,
+
+        nominee:
+          document.getElementById(
+            "editNominee"
+          ).value,
+
+        account_type:
+          document.getElementById(
+            "editAccountType"
+          ).value
+      };
+
+      const res = await fetch(
+        `${API_BASE}/branch-employee/accounts/${account_number}`,
+        {
+          method:"PUT",
+          headers: authHeaders(),
+          body: JSON.stringify(payload)
+        }
+      );
+
+      const data = await res.json();
+
+      if(res.ok){
+
+        showMsg(
+          "editMsg",
+          "success",
+          data.message
+        );
+
+        loadAccounts();
+
+      }else{
+
+        showMsg(
+          "editMsg",
+          "danger",
+          data.detail
+        );
+      }
+    }
+
+    // TRANSACTION
+
+    async function performTransaction(){
+
+      const account_number =
+        document.getElementById("txnAccount").value;
+
+      const amount =
+        document.getElementById("txnAmount").value;
+
+      const type =
+        document.getElementById("txnType").value;
+
+      const endpoint =
+        type === "deposit"
+          ? "deposit"
+          : "withdraw";
+
+      const res = await fetch(
+        `${API_BASE}/branch-employee/accounts/${endpoint}`,
+        {
+          method:"POST",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            account_number,
+            amount
+          })
+        }
+      );
+
+      const data = await res.json();
+
+      showMsg(
+        "txnMsg",
+        res.ok ? "success" : "danger",
+        data.message || data.detail
+      );
+
+      loadAccounts();
+    }
+
+    // HISTORY
+
+    async function loadHistory(){
+
+      const account =
+        document.getElementById(
+          "historyAccount"
+        ).value;
+
+      const res = await fetch(
+        `${API_BASE}/branch-employee/accounts/transactions/${account}`,
+        {
+          headers: authHeaders()
+        }
+      );
+
+      const data = await res.json();
+
+      const tbody =
+        document.getElementById("historyBody");
+
+      tbody.innerHTML = "";
+
+      (data.history || []).forEach(t=>{
+
+        tbody.innerHTML += `
+          <tr>
+
+            <td>${t.transaction_id}</td>
+
+            <td>${t.transaction_type}</td>
+
+            <td>₹${t.amount}</td>
+
+            <td>₹${t.balance_after}</td>
+
+            <td>${t.created_at}</td>
+
+          </tr>
+        `;
+      });
+    }
+
+    // FREEZE
+
+    async function freezeAccount(){
+
+      const acc =
+        document.getElementById(
+          "freezeAccount"
+        ).value;
+
+      const res = await fetch(
+        `${API_BASE}/branch-employee/accounts/${acc}/freeze`,
+        {
+          method:"POST",
+          headers: authHeaders()
+        }
+      );
+
+      const data = await res.json();
+
+      showMsg(
+        "freezeMsg",
+        res.ok ? "success" : "danger",
+        data.message || data.detail
+      );
+
+      loadAccounts();
+    }
+
+    // CLOSE
+
+    async function closeAccount(){
+
+      const acc =
+        document.getElementById(
+          "freezeAccount"
+        ).value;
+
+      const res = await fetch(
+        `${API_BASE}/branch-employee/accounts/${acc}/close`,
+        {
+          method:"POST",
+          headers: authHeaders()
+        }
+      );
+
+      const data = await res.json();
+
+      showMsg(
+        "freezeMsg",
+        res.ok ? "success" : "danger",
+        data.message || data.detail
+      );
+
+      loadAccounts();
+    }
+
+    // REOPEN
+
+    async function reopenAccount(){
+
+      const acc =
+        document.getElementById(
+          "freezeAccount"
+        ).value;
+
+      const res = await fetch(
+        `${API_BASE}/branch-employee/accounts/${acc}/reopen`,
+        {
+          method:"POST",
+          headers: authHeaders()
+        }
+      );
+
+      const data = await res.json();
+
+      showMsg(
+        "freezeMsg",
+        res.ok ? "success" : "danger",
+        data.message || data.detail
+      );
+
+      loadAccounts();
+    }
+
+    window.onload = ()=>{
+
+      loadAccounts();
+    };
+
+  </script>
+
+</body>
+</html>
