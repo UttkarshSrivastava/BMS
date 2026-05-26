@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Loan Status</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#eef3ff;
+}
+
+.container{
+    width:95%;
+    max-width:1200px;
+    margin:auto;
+    padding:30px;
+}
+
+.card{
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
+    margin-bottom:20px;
+}
+
+.title{
+    margin-bottom:25px;
+}
+
+.title h1{
+    color:#002b7f;
+}
+
+.title p{
+    color:#666;
+    margin-top:5px;
+}
+
+.loan-card{
+    background:#f8faff;
+    border:1px solid #dce3ff;
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:16px;
+}
+
+.loan-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.loan-type{
+    font-weight:600;
+    color:#002b7f;
+    font-size:1.1rem;
+}
+
+.badge{
+    padding:5px 14px;
+    border-radius:20px;
+    font-size:0.8rem;
+    font-weight:600;
+}
+
+.badge.pending   { background:#fff3cd; color:#856404; }
+.badge.approved  { background:#d1fae5; color:#065f46; }
+.badge.rejected  { background:#ffe4e6; color:#9f1239; }
+.badge.waiting   { background:#e0e7ff; color:#3730a3; }
+
+.loan-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.info-item label{
+    display:block;
+    font-size:0.75rem;
+    color:#888;
+    margin-bottom:3px;
+}
+
+.info-item span{
+    font-weight:500;
+    color:#222;
+}
+
+.approval-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid #e5eaff;
+}
+
+.step{
+    flex:1;
+    min-width:100px;
+    text-align:center;
+    padding:8px;
+    border-radius:10px;
+    background:#fff;
+    border:1px solid #dce3ff;
+}
+
+.step .step-label{
+    font-size:0.72rem;
+    color:#666;
+}
+
+.step .step-status{
+    font-weight:600;
+    font-size:0.85rem;
+    margin-top:3px;
+}
+
+.step.ok   .step-status{ color:#059669; }
+.step.no   .step-status{ color:#dc2626; }
+.step.wait .step-status{ color:#7c3aed; }
+.step.pend .step-status{ color:#d97706; }
+
+.empty{
+    text-align:center;
+    color:#888;
+    padding:40px;
+}
+
+.back-btn{
+    display:inline-block;
+    margin-bottom:20px;
+    background:#002b7f;
+    color:white;
+    padding:10px 20px;
+    border-radius:12px;
+    text-decoration:none;
+    font-size:0.9rem;
+    cursor:pointer;
+    border:none;
+}
+
+.loading{
+    text-align:center;
+    color:#666;
+    padding:30px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <button class="back-btn" onclick="history.back()">← Back</button>
+
+    <div class="card">
+
+        <div class="title">
+            <h1>My Loan Applications</h1>
+            <p>Track the status of your loan requests</p>
+        </div>
+
+        <div id="loansContainer">
+            <div class="loading">Loading your loan applications...</div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const accountNumber = sessionStorage.getItem("customerAccountNumber");
+
+function stepClass(status) {
+    if (!status) return "wait";
+    const s = status.toLowerCase();
+    if (s === "approved") return "ok";
+    if (s === "rejected") return "no";
+    if (s === "pending")  return "pend";
+    return "wait";
+}
+
+function badgeClass(status) {
+    if (!status) return "waiting";
+    const s = status.toLowerCase();
+    if (s === "approved") return "approved";
+    if (s === "rejected") return "rejected";
+    if (s === "pending")  return "pending";
+    return "waiting";
+}
+
+function renderLoans(loans) {
+
+    const container = document.getElementById("loansContainer");
+
+    if (!loans || loans.length === 0) {
+        container.innerHTML = '<div class="empty">No loan applications found.</div>';
+        return;
+    }
+
+    container.innerHTML = loans.map(loan => `
+        <div class="loan-card">
+
+            <div class="loan-header">
+                <span class="loan-type">${loan.loan_type || "Loan"}</span>
+                <span class="badge ${badgeClass(loan.overall_status)}">
+                    ${loan.overall_status || "Pending"}
+                </span>
+            </div>
+
+            <div class="loan-grid">
+
+                <div class="info-item">
+                    <label>Loan Amount</label>
+                    <span>₹ ${(loan.loan_amount || 0).toLocaleString("en-IN")}</span>
+                </div>
+
+                <div class="info-item">
+                    <label>Duration</label>
+                    <span>${loan.duration_months || "-"} Months</span>
+                </div>
+
+                <div class="info-item">
+                    <label>Interest Rate</label>
+                    <span>${loan.interest_rate || "-"} %</span>
+                </div>
+
+                <div class="info-item">
+                    <label>Monthly EMI</label>
+                    <span>₹ ${(loan.monthly_emi || 0).toFixed(2)}</span>
+                </div>
+
+                <div class="info-item">
+                    <label>Applied On</label>
+                    <span>${loan.created_at ? new Date(loan.created_at).toLocaleDateString("en-IN") : "-"}</span>
+                </div>
+
+                ${loan.rejection_reason ? `
+                <div class="info-item">
+                    <label>Rejection Reason</label>
+                    <span style="color:#dc2626">${loan.rejection_reason}</span>
+                </div>` : ""}
+
+            </div>
+
+            <div class="approval-row">
+
+                <div class="step ${stepClass(loan.employee_status)}">
+                    <div class="step-label">Employee Review</div>
+                    <div class="step-status">${loan.employee_status || "Pending"}</div>
+                </div>
+
+                <div class="step ${stepClass(loan.manager_status)}">
+                    <div class="step-label">Manager Review</div>
+                    <div class="step-status">${loan.manager_status || "Waiting"}</div>
+                </div>
+
+                <div class="step ${stepClass(loan.admin_status)}">
+                    <div class="step-label">Admin Review</div>
+                    <div class="step-status">${loan.admin_status || "Waiting"}</div>
+                </div>
+
+            </div>
+
+        </div>
+    `).join("");
+}
+
+async function loadLoans() {
+
+    if (!accountNumber) {
+        document.getElementById("loansContainer").innerHTML =
+            '<div class="empty">Please log in to view your loan applications.</div>';
+        return;
+    }
+
+    try {
+        const res = await fetch(`/loan/status/${accountNumber}`);
+        const data = await res.json();
+        renderLoans(Array.isArray(data) ? data : []);
+    } catch (e) {
+        document.getElementById("loansContainer").innerHTML =
+            '<div class="empty">Failed to load loan applications. Please try again.</div>';
+    }
+}
+
+loadLoans();
+
+</script>
+
+</body>
+</html>

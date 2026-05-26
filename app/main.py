@@ -2,6 +2,10 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
+import os
+
+# Resolve project root regardless of where uvicorn is launched from
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 from app.auth.auth import authenticate_user, LoginRequest
 from app.services.login_service import authenticate_branch_employee
@@ -33,8 +37,8 @@ app.add_middleware(
 )
 
 # ---------------- STATIC + TEMPLATES ----------------
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
-templates = Jinja2Templates(directory="app/templates")
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 # ---------------- PAGES ----------------
 @app.get("/")
@@ -456,8 +460,7 @@ def admin_card_requests_page(request: Request):
 
 try:
     from app.routers.account_queries_router import router as account_queries_router
-
     app.include_router(account_queries_router)
-
-except Exception:
-    pass
+except Exception as e:
+    import logging
+    logging.warning(f"account_queries_router not loaded: {e}")
